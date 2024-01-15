@@ -126,11 +126,11 @@ public struct CacheItem<Element: Equatable>: Equatable {
     public var cacheDate: Date = Date()
     public var cacheItem: Element
     
-    init(_ item: Element) {
+    public init(_ item: Element) {
         self.cacheItem = item
     }
     
-    func isValid(hours: Int? = nil) -> Bool {
+    public func isValid(hours: Int? = nil) -> Bool {
         guard hours == nil else {
             return false
         }
@@ -149,7 +149,7 @@ public struct CacheItem<Element: Equatable>: Equatable {
     }
 }
 
-public enum Leagues: String {
+public enum Leagues: String, CaseIterable {
     case SHL = "qcz-3Nwp4dmpw"
     case SDHL = "qd0-2O1wDzzQm"
 }
@@ -163,6 +163,14 @@ public class LeagueStandings: ObservableObject, Equatable {
     
     public static func == (lhs: LeagueStandings, rhs: LeagueStandings) -> Bool {
         return lhs.uuid == rhs.uuid
+    }
+    
+    public func fetchLeagues(skipCache: Bool = false) {
+        Leagues.allCases.forEach { league in
+            Task {
+                await fetchLeague(league: league, skipCache: skipCache)
+            }
+        }
     }
     
     public func fetchLeague(league: Leagues, skipCache: Bool = false) async -> StandingResults? {

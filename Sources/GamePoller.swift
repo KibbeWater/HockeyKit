@@ -12,6 +12,25 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
     private var url: URL
     public let matchId: String?
     
+    func getActiveMatch() async {
+        guard let _gameId = self.matchId else { return }
+        
+        let matchInfo = MatchInfo()
+        
+        do {
+            if let callback = dataReceivedCallback {
+                print("GamePoller Pre-fetch game")
+                if let match = try await matchInfo.getMatch(_gameId) {
+                    print("Finished GamePoller pre-fetch")
+                    print("\(match.gameUuid)")
+                    callback(GameEvent(id: -1, game: GameData(gameOverview: match)), nil)
+                }
+            }
+        } catch _ {
+            Logging.shared.log("Failed to fetch active match info")
+        }
+    }
+    
     public init(url: URL, gameId: String? = nil, dataReceivedCallback: ((GameEvent?, Error?) -> Void)?) {
         print("Init GamePoller")
         self.dataReceivedCallback = dataReceivedCallback
@@ -20,18 +39,9 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
         super.init()
         
         // Optional gameId incase we want to get an initial call
-        if let _gameId = gameId {
-            let matchInfo = MatchInfo()
-            
+        if gameId != nil {
             Task {
-                if let callback = dataReceivedCallback {
-                    print("GamePoller Pre-fetch game")
-                    if let match = try await matchInfo.getMatch(_gameId) {
-                        print("Finished GamePoller pre-fetch")
-                        print("\(match.gameUuid)")
-                        callback(GameEvent(id: -1, game: GameData(gameOverview: match)), nil)
-                    }
-                }
+                await getActiveMatch()
             }
         }
         
@@ -67,7 +77,12 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
                 let game = try decoder.decode(GameData.self, from: String(data).data(using: .utf8)!)
                 dataReceivedCallback?(GameEvent(id: Int(id)!, game: game), nil)
             } catch {
-                print("Error")
+                Task {
+                    await getActiveMatch()
+                }
+                startRequest()
+                // Restart request
+                Logging.shared.log("Request failed, trying again...")
             }
         }
     }
