@@ -173,7 +173,11 @@ public class LeagueStandings: ObservableObject, Equatable {
         }
     }
     
-    public func fetchLeague(league: Leagues, skipCache: Bool = false) async -> StandingResults? {
+    public func fetchLeague(league: Leagues, skipCache: Bool = false, clearExisting: Bool = false) async -> StandingResults? {
+        if clearExisting {
+            self.standings[league] = nil
+        }
+        
         if !skipCache {
             if self.standings[league]?.isValid(hours: 1) != nil {
                 if let _cache = self.standings[league]?.cacheItem {
