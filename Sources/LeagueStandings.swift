@@ -189,19 +189,24 @@ public class LeagueStandings: ObservableObject, Equatable {
         do {
             let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/league-standings?ssgtUuid=\(league.rawValue)")!)
         
-            let decoder = JSONDecoder()
-            let result = try decoder.decode(StandingResults.self, from: data)
-            
-            DispatchQueue.main.async {
-                self.standings[league] = CacheItem<StandingResults?>(result)
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(StandingResults.self, from: data)
+                
+                DispatchQueue.main.async {
+                    self.standings[league] = CacheItem<StandingResults?>(result)
+                }
+                
+                return result
             }
-            
-            return result
         } catch let error {
-            print("ERR!")
+            print("ERR! fetchLeague")
             print(error)
         }
-        self.standings[league] = CacheItem<StandingResults?>(nil)
+        
+        DispatchQueue.main.async {
+            self.standings[league] = CacheItem<StandingResults?>(nil)
+        }
         return nil
     }
 }
