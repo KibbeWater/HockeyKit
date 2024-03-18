@@ -155,7 +155,7 @@ public enum Leagues: String, CaseIterable {
 }
 
 public class LeagueStandings: ObservableObject, Equatable {
-    private var url: String = "https://www.luleahockey.se/api"
+    private var url: String = "https://www.shl.se/api"
     @Published public var standings: Dictionary<Leagues, CacheItem<StandingResults?>> = Dictionary<Leagues, CacheItem<StandingResults?>>()
     private var uuid = UUID().uuidString
     

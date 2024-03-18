@@ -76,7 +76,7 @@ public struct Game: Identifiable, Equatable, Decodable {
 }
 
 public class MatchInfo: ObservableObject {
-    private var url: String = "https://www.luleahockey.se/api"
+    private var url: String = "https://www.shl.se/api"
     @Published public var latestMatches: [Game] = []
     
     public init() {}
