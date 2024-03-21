@@ -35,6 +35,46 @@ public struct Game: Identifiable, Equatable, Decodable {
     public static func == (lhs: Game, rhs: Game) -> Bool {
         return lhs.id == rhs.id
     }
+    
+    public static func fakeData() -> Game {
+        return Game(
+            id: "qeX-4AC927yoX",
+            date: Date(),
+            played: true,
+            overtime: true,
+            shootout: false,
+            ssgtUuid: "qeX-3mMev7bgG",
+            seriesCode: .SHL,
+            venue: "Be-Ge Hockey Center",
+            homeTeam: Game.Team(
+                name: "IK Oskarshamn",
+                code: "IKO",
+                result: 2,
+                logo: "https://sportality.cdn.s8y.se/team-logos/iko1_iko.svg"
+            ),
+            awayTeam: Game.Team(
+                name: "HV71",
+                code: "HV71",
+                result: 3,
+                logo: "https://sportality.cdn.s8y.se/team-logos/hv711_hv71.svg"
+            ),
+            liveGameUrl: ""
+        )
+    }
+    
+    public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String, homeTeam: Team, awayTeam: Team, liveGameUrl: String) {
+        self.id = id
+        self.date = date
+        self.played = played
+        self.overtime = overtime
+        self.shootout = shootout
+        self.ssgtUuid = ssgtUuid
+        self.seriesCode = seriesCode
+        self.venue = venue
+        self.homeTeam = homeTeam
+        self.awayTeam = awayTeam
+        self.liveGameUrl = liveGameUrl
+    }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
