@@ -130,9 +130,7 @@ public class MatchInfo: ObservableObject {
             
             var newMatches: [Game] = []
             game.forEach { (key: String, value: [Game]) in
-                if let game = value.first {
-                    newMatches.append(game)
-                }
+                newMatches.append(contentsOf: value)
             }
             newMatches = newMatches.sorted { $0.date < $1.date }
             

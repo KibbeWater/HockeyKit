@@ -57,19 +57,19 @@ public struct GameTime: Codable, Equatable {
     
     func estimatedEndTime(_ gameDuration: String) -> Date? {
         let formatter = DateFormatter()
-            formatter.dateFormat = "mm:ss"
-            
-            guard let durationDate = formatter.date(from: gameDuration) else {
-                return nil
-            }
-            
-            // Set the maximum game duration to 20 minutes
-            let maxGameDuration: TimeInterval = 20 * 60
-            
-            // Calculate the end time by adding the game duration to the current time
-            let estimatedEndDate = Date().addingTimeInterval(durationDate.timeIntervalSinceReferenceDate - maxGameDuration)
-            
-            return estimatedEndDate
+        formatter.dateFormat = "mm:ss"
+        
+        guard let durationDate = formatter.date(from: gameDuration) else {
+            return nil
+        }
+        
+        // Set the maximum game duration to 20 minutes
+        let maxGameDuration: TimeInterval = 20 * 60
+        
+        // Calculate the end time by adding the game duration to the current time
+        let estimatedEndDate = Date().addingTimeInterval(durationDate.timeIntervalSinceReferenceDate - maxGameDuration)
+        
+        return estimatedEndDate
     }
 }
 
