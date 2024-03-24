@@ -19,3 +19,22 @@ public struct PBPlayer: Codable {
         public let value: String
     }
 }
+
+public struct PBPTeam: Codable {
+    public let teamId: String
+    public let teamName: String
+    public let teamCode: String
+    public let score: Int
+}
+
+public struct PBPEventTeam: Codable {
+    public let teamId: String
+    public let teamName: String
+    public let teamCode: String
+    public let place: PBPEventTeamType
+}
+
+public enum PBPEventTeamType: String, Codable {
+    case home
+    case away
+}

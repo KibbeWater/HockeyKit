@@ -142,6 +142,8 @@ class EventFactory {
             return try PeriodEvent(from: decoder)
         case .shot:
             return try ShotEvent(from: decoder)
+        case .timeout:
+            return try TimeoutEvent(from: decoder)
         }
     }
 

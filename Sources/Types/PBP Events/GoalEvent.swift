@@ -19,6 +19,9 @@ public struct GoalEvent: PBPEventProtocol {
     public let player: PBPlayer
     public let homeGoals: Int
     public let awayGoals: Int
+    public let homeTeam: PBPTeam
+    public let awayTeam: PBPTeam
+    public let eventTeam: PBPEventTeam
     public let goalSection: Int
     public let isEmptyNetGoal: Bool
     public let assists: AssistDictionary?
@@ -53,6 +56,9 @@ public struct GoalEvent: PBPEventProtocol {
         player = try container.decode(PBPlayer.self, forKey: .player)
         homeGoals = try container.decode(Int.self, forKey: .homeGoals)
         awayGoals = try container.decode(Int.self, forKey: .awayGoals)
+        homeTeam = try container.decode(PBPTeam.self, forKey: .homeTeam)
+        awayTeam = try container.decode(PBPTeam.self, forKey: .awayTeam)
+        eventTeam = try container.decode(PBPEventTeam.self, forKey: .eventTeam)
         goalSection = try container.decode(Int.self, forKey: .goalSection)
         isEmptyNetGoal = try container.decode(Bool.self, forKey: .isEmptyNetGoal)
         assists = try container.decodeIfPresent(AssistDictionary.self, forKey: .assists)
@@ -69,6 +75,9 @@ public struct GoalEvent: PBPEventProtocol {
         case type
         // Unique fields for a "goal" event
         case player
+        case homeTeam
+        case awayTeam
+        case eventTeam
         case homeGoals
         case awayGoals
         case goalSection
