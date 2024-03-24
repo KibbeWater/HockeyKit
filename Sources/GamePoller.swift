@@ -51,7 +51,7 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
     func startRequest() {
         let urlRequest = URLRequest(url: url)
         
-        let session = URLSession(configuration: .default)
+        let session = URLSession(configuration: .ephemeral)
         let dataTask = session.dataTask(with: urlRequest)
         dataTask.delegate = self
         dataTask.resume()
@@ -93,6 +93,13 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let _err = error {
+            print(_err)
+        }
+        if (error as? URLError)?.code == .timedOut {
+            print("Detected timeout error, restarting the request")
+            startRequest()
+        }
         dataReceivedCallback?(nil, error)
     }
 }
