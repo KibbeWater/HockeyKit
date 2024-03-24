@@ -115,6 +115,41 @@ public struct Game: Identifiable, Equatable, Decodable {
     }
 }
 
+struct AnyPBPEvent: Decodable {
+    let event: PBPEventProtocol
+    
+    enum CodingKeys: CodingKey {
+        case type
+    }
+    
+    init(from decoder: Decoder) throws {
+        self.event = try EventFactory.decode(from: decoder)
+    }
+}
+
+class EventFactory {
+    static func decode(from decoder: Decoder) throws -> PBPEventProtocol {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(PBPEventType.self, forKey: .type)
+        switch type {
+        case .goalkeeper:
+            return try GoalkeeperEvent(from: decoder)
+        case .goal:
+            return try GoalEvent(from: decoder)
+        case .penalty:
+            return try PenaltyEvent(from: decoder)
+        case .period:
+            return try PeriodEvent(from: decoder)
+        case .shot:
+            return try ShotEvent(from: decoder)
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type
+    }
+}
+
 public class MatchInfo: ObservableObject {
     private var url: String = "https://www.shl.se/api"
     @Published public var latestMatches: [Game] = []
@@ -154,6 +189,24 @@ public class MatchInfo: ObservableObject {
             let game = try decoder.decode(GameOverview.self, from: data)
             
             return game
+        } catch let error {
+            print("ERR!")
+            print(error)
+            return nil
+        }
+    }
+    
+    public func getMatchPBP(_ matchId: String) async throws -> [PBPEventProtocol]? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "https://game-data.s8y.se/play-by-play/by-game-uuid/\(matchId)")!)
+            
+            let decoder = JSONDecoder()
+            
+            let decodedEvents = try decoder.decode([AnyPBPEvent].self, from: data)
+            var events = decodedEvents.map { $0.event }
+            events = events.sorted { $0.realWorldTime < $1.realWorldTime }
+            
+            return events
         } catch let error {
             print("ERR!")
             print(error)
