@@ -10,6 +10,7 @@ import ActivityKit
 
 public class ActivityUpdater {
     public static var shared: ActivityUpdater = ActivityUpdater()
+    var deviceUUID = UUID()
     
     func OverviewToState(_ overview: GameOverview) -> SHLWidgetAttributes.ContentState {
         return SHLWidgetAttributes.ContentState(homeScore: overview.homeGoals, awayScore: overview.awayGoals, period: ActivityPeriod(period: overview.time.period, periodEnd: overview.time.periodEnd ?? Date()))
@@ -36,7 +37,38 @@ public class ActivityUpdater {
                 }
                 
                 // Send the push token
+                updatePushToken(match, token: pushTokenString)
             }
         }
+    }
+    
+    func updatePushToken(_ match: GameOverview, token: String) {
+        let json: [String: Any] = ["deviceUUID": deviceUUID.uuidString,
+                                   "token": token,
+                                   "matchId": match.gameUuid]
+
+        let jsonData = try? JSONSerialization.data(withJSONObject: json)
+
+        // create post request
+        let url = URL(string: "https://shl.lrlnet.se/api/register")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        // insert json data to the request
+        request.httpBody = jsonData
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data, error == nil else {
+                print(error?.localizedDescription ?? "No data")
+                return
+            }
+            let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let responseJSON = responseJSON as? [String: Any] {
+                print(responseJSON)
+            }
+        }
+
+        task.resume()
     }
 }

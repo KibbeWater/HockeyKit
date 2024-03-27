@@ -76,12 +76,10 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
             do {
                 let game = try decoder.decode(GameData.self, from: String(data).data(using: .utf8)!)
                 dataReceivedCallback?(GameEvent(id: Int(id)!, game: game), nil)
-            } catch {
-                Task {
-                    await getActiveMatch()
-                }
+            } catch let err {
                 startRequest()
                 // Restart request
+                print(err)
                 Logging.shared.log("Request failed, trying again...")
             }
         }

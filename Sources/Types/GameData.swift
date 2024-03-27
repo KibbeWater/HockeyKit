@@ -21,7 +21,6 @@ public enum GameState: String, Codable {
 }
 
 public struct TeamData: Codable, Equatable {
-    public var gameSourceId: String
     public var gameId: Int
     public var place: PlaceType
     public var score: Int
