@@ -26,9 +26,9 @@ public struct ActivityTeam: Codable {
 
 public struct ActivityPeriod: Codable, Hashable {
     public var period: Int
-    public var periodEnd: Date
+    public var periodEnd: String
     
-    public init(period: Int, periodEnd: Date) {
+    public init(period: Int, periodEnd: String) {
         self.period = period
         self.periodEnd = periodEnd
     }
@@ -36,7 +36,7 @@ public struct ActivityPeriod: Codable, Hashable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.period = try container.decode(Int.self, forKey: .period)
-        self.periodEnd = try container.decode(Date.self, forKey: .periodEnd)
+        self.periodEnd = try container.decode(String.self, forKey: .periodEnd)
     }
 }
 

@@ -13,7 +13,7 @@ public class ActivityUpdater {
     var deviceUUID = UUID()
     
     func OverviewToState(_ overview: GameOverview) -> SHLWidgetAttributes.ContentState {
-        return SHLWidgetAttributes.ContentState(homeScore: overview.homeGoals, awayScore: overview.awayGoals, period: ActivityPeriod(period: overview.time.period, periodEnd: overview.time.periodEnd ?? Date()))
+        return SHLWidgetAttributes.ContentState(homeScore: overview.homeGoals, awayScore: overview.awayGoals, period: ActivityPeriod(period: overview.time.period, periodEnd: (overview.time.periodEnd ?? Date()).ISO8601Format()))
     }
     
     func OverviewToAttrib(_ overview: GameOverview) -> SHLWidgetAttributes {

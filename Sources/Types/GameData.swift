@@ -68,6 +68,8 @@ public struct GameTime: Codable, Equatable {
         // Calculate the end time by adding the game duration to the current time
         let estimatedEndDate = Date().addingTimeInterval(durationDate.timeIntervalSinceReferenceDate - maxGameDuration)
         
+        
+        
         return estimatedEndDate
     }
 }
