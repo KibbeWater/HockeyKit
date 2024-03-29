@@ -8,6 +8,14 @@
 import Foundation
 import ActivityKit
 
+public enum ActivityState: String, Codable {
+    case starting = "NotStarted"
+    case ongoing = "Ongoing"
+    case onbreak = "PeriodBreak"
+    case overtime = "Overtime"
+    case ended = "GameEnded"
+}
+
 public struct ActivityTeam: Codable {
     public var name: String
     public var teamCode: String
@@ -27,16 +35,19 @@ public struct ActivityTeam: Codable {
 public struct ActivityPeriod: Codable, Hashable {
     public var period: Int
     public var periodEnd: String
+    public var state: ActivityState
     
-    public init(period: Int, periodEnd: String) {
+    public init(period: Int, periodEnd: String, state: ActivityState) {
         self.period = period
         self.periodEnd = periodEnd
+        self.state = state
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.period = try container.decode(Int.self, forKey: .period)
         self.periodEnd = try container.decode(String.self, forKey: .periodEnd)
+        self.state = try container.decode(ActivityState.self, forKey: .state)
     }
 }
 
