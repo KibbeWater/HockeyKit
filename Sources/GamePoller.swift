@@ -7,43 +7,74 @@
 
 import Foundation
 
-public class GamePoller: NSObject, URLSessionDataDelegate {
-    private var dataReceivedCallback: ((GameEvent?, Error?) -> Void)?
-    private var url: URL
-    public let matchId: String?
+public class GameUpdater: ObservableObject {
+    public let gameId: String
+    
+    @Published public var game: GameOverview? = nil
     
     func getActiveMatch() async {
-        guard let _gameId = self.matchId else { return }
-        
         let matchInfo = MatchInfo()
         
         do {
-            if let callback = dataReceivedCallback {
-                print("GamePoller Pre-fetch game")
-                if let match = try await matchInfo.getMatch(_gameId) {
-                    print("Finished GamePoller pre-fetch")
-                    print("\(match.gameUuid)")
-                    callback(GameEvent(id: -1, game: GameData(gameOverview: match)), nil)
-                }
+            if let match = try await matchInfo.getMatch(gameId) {
+                game = match
             }
         } catch _ {
             Logging.shared.log("Failed to fetch active match info")
         }
     }
     
-    public init(url: URL, gameId: String? = nil, dataReceivedCallback: ((GameEvent?, Error?) -> Void)?) {
-        print("Init GamePoller")
-        self.dataReceivedCallback = dataReceivedCallback
-        self.url = url
-        self.matchId = gameId
-        super.init()
+    public func refreshPoller() {
+        GamePoller.shared.refreshPoller()
+    }
+    
+    private func listener(event: GameEvent?, err: Error?) {
+        if let _err = err {
+            print("Error in gameListener")
+            print(_err)
+            return
+        }
         
-        // Optional gameId incase we want to get an initial call
-        if gameId != nil {
-            Task {
-                await getActiveMatch()
+        guard gameId == event?.game.gameOverview.gameUuid else {
+            return
+        }
+        
+        if let gameOverview = event?.game.gameOverview {
+            self.game = gameOverview
+        }
+    }
+    
+    public init(gameId: String) {
+        self.gameId = gameId
+        GamePoller.shared.registerCallback { [weak self] ev, err in
+            if let _self = self {
+                _self.listener(event: ev, err: err)
             }
         }
+        Task {
+            await getActiveMatch()
+        }
+    }
+}
+
+class GamePoller: NSObject, URLSessionDataDelegate {
+    private let url: URL = URL(string: "https://game-broadcaster.s8y.se/live/game")!
+    private var callbacks: [(GameEvent?, Error?) -> Void] = []
+    private var task: URLSessionDataTask? = nil
+    
+    fileprivate static let shared: GamePoller = GamePoller()
+    
+    public func registerCallback(_ callback: @escaping (GameEvent?, Error?) -> Void) {
+        self.callbacks.append(callback)
+    }
+    
+    public func refreshPoller() {
+        task?.cancel()
+        startRequest()
+    }
+    
+    override init() {
+        super.init()
         
         startRequest()
     }
@@ -53,6 +84,7 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
         
         let session = URLSession(configuration: .ephemeral)
         let dataTask = session.dataTask(with: urlRequest)
+        task = dataTask
         dataTask.delegate = self
         dataTask.resume()
     }
@@ -75,10 +107,11 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
             let decoder = JSONDecoder()
             do {
                 let game = try decoder.decode(GameData.self, from: String(data).data(using: .utf8)!)
-                dataReceivedCallback?(GameEvent(id: Int(id)!, game: game), nil)
+                callbacks.forEach { cb in
+                    cb(GameEvent(id: Int(id)!, game: game), nil)
+                }
             } catch let err {
-                startRequest()
-                // Restart request
+                refreshPoller()
                 print(err)
                 Logging.shared.log("Request failed, trying again...")
             }
@@ -98,6 +131,8 @@ public class GamePoller: NSObject, URLSessionDataDelegate {
             print("Detected timeout error, restarting the request")
             startRequest()
         }
-        dataReceivedCallback?(nil, error)
+        callbacks.forEach { cb in
+            cb(nil, error)
+        }
     }
 }
