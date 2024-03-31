@@ -86,7 +86,6 @@ public struct Game: Identifiable, Equatable, Decodable {
         let _date = try container.decode(String.self, forKey: .date)
         let _time = try container.decode(String.self, forKey: .time)
         date = dateFormatter.date(from: "\(_date)T\(_time):00+0100") ?? Date.distantPast
-        Logging.shared.log("\(_date)T\(_time):00+0100\n    \(date.ISO8601Format())")
         
         played = try container.decode(Bool.self, forKey: .played)
         overtime = try container.decode(Bool.self, forKey: .overtime)
@@ -178,8 +177,8 @@ public class MatchInfo: ObservableObject {
                 }
             }
         } catch let error {
-            print("ERR!")
-            print(error)
+            Logging.shared.log("ERR!")
+            Logging.shared.log(String(error.localizedDescription))
         }
     }
     

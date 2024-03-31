@@ -42,7 +42,7 @@ public struct PenaltyEvent: PBPEventProtocol {
 }
 
 public struct PenaltyVariant: Codable {
-    public let shortName: String
+    public let shortName: String?
     public let minorTime: String?
     public let doubleMinorTime: String?
     public let benchTime: String?
@@ -50,5 +50,5 @@ public struct PenaltyVariant: Codable {
     public let misconductTime: String?
     public let gMTime: String?
     public let mPTime: String?
-    public let description: String
+    public let description: String?
 }

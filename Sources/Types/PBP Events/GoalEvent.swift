@@ -16,6 +16,7 @@ public struct GoalEvent: PBPEventProtocol {
     public let type: PBPEventType
     
     // Unique fields for a "goal" event
+    public let time: String
     public let player: PBPlayer
     public let homeGoals: Int
     public let awayGoals: Int
@@ -53,6 +54,7 @@ public struct GoalEvent: PBPEventProtocol {
         type = try container.decode(PBPEventType.self, forKey: .type)
         
         // Decode the unique fields for a "goal" event
+        time = try container.decode(String.self, forKey: .time)
         player = try container.decode(PBPlayer.self, forKey: .player)
         homeGoals = try container.decode(Int.self, forKey: .homeGoals)
         awayGoals = try container.decode(Int.self, forKey: .awayGoals)
@@ -74,6 +76,7 @@ public struct GoalEvent: PBPEventProtocol {
         case realWorldTime
         case type
         // Unique fields for a "goal" event
+        case time
         case player
         case homeTeam
         case awayTeam

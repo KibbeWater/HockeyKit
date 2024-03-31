@@ -26,6 +26,9 @@ public class GameUpdater: ObservableObject {
     
     public func refreshPoller() {
         GamePoller.shared.refreshPoller()
+        Task {
+            await getActiveMatch()
+        }
     }
     
     private func listener(event: GameEvent?, err: Error?) {
