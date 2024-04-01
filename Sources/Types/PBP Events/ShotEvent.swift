@@ -21,6 +21,7 @@ public struct ShotEvent: PBPEventProtocol {
     public let awayTeam: PBPTeam
     public let eventTeam: PBPEventTeam
     public let player: PBPlayer
+    public let goalSection: Int
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -41,5 +42,6 @@ public struct ShotEvent: PBPEventProtocol {
         awayTeam = try container.decode(PBPTeam.self, forKey: .awayTeam)
         eventTeam = try container.decode(PBPEventTeam.self, forKey: .eventTeam)
         player = try container.decode(PBPlayer.self, forKey: .player)
+        goalSection = try container.decode(Int.self, forKey: .goalSection)
     }
 }

@@ -127,6 +127,10 @@ class GamePoller: NSObject, URLSessionDataDelegate {
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error = error as NSError?, error.code == NSURLErrorCancelled {
+            print("Closed connection to live broadcaster")
+            return // If it was cancelled we should manage it ourselves
+        }
         if let _err = error {
             print(_err)
         }

@@ -16,6 +16,9 @@ public struct PenaltyEvent: PBPEventProtocol {
     public let type: PBPEventType
 
     // Unique fields for a penalty event
+    public let time: String
+    public let player: PBPlayer?
+    public let eventTeam: PBPEventTeam
     public let offence: String
     public let didRenderInPenaltyShot: Bool
     public let variant: PenaltyVariant
@@ -35,6 +38,9 @@ public struct PenaltyEvent: PBPEventProtocol {
         type = try container.decode(PBPEventType.self, forKey: .type)
         
         // Decode the unique fields for a "goal" event
+        time = try container.decode(String.self, forKey: .time)
+        player = try container.decodeIfPresent(PBPlayer.self, forKey: .player)
+        eventTeam = try container.decode(PBPEventTeam.self, forKey: .eventTeam)
         offence = try container.decode(String.self, forKey: .offence)
         didRenderInPenaltyShot = try container.decode(Bool.self, forKey: .didRenderInPenaltyShot)
         variant = try container.decode(PenaltyVariant.self, forKey: .variant)

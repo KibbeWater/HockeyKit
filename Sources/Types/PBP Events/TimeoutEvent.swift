@@ -16,6 +16,7 @@ public struct TimeoutEvent: PBPEventProtocol {
     public let type: PBPEventType
     
     // Unique fields for a period event
+    public let time: String
     public let homeTeam: PBPTeam
     public let awayTeam: PBPTeam
     public let eventTeam: PBPEventTeam
@@ -34,6 +35,7 @@ public struct TimeoutEvent: PBPEventProtocol {
         
         type = try container.decode(PBPEventType.self, forKey: .type)
         
+        time = try container.decode(String.self, forKey: .time)
         homeTeam = try container.decode(PBPTeam.self, forKey: .homeTeam)
         awayTeam = try container.decode(PBPTeam.self, forKey: .awayTeam)
         eventTeam = try container.decode(PBPEventTeam.self, forKey: .eventTeam)

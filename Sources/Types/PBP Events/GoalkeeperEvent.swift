@@ -17,6 +17,9 @@ public struct GoalkeeperEvent: PBPEventProtocol {
 
     // Unique fields for a goalkeeper event
     public let isEntering: Bool
+    public let time: String
+    public let eventTeam: PBPEventTeam
+    public let player: PBPlayer
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,5 +37,8 @@ public struct GoalkeeperEvent: PBPEventProtocol {
         
         // Decode the unique fields for a "goal" event
         isEntering = try container.decode(Bool.self, forKey: .isEntering)
+        time = try container.decode(String.self, forKey: .time)
+        eventTeam = try container.decode(PBPEventTeam.self, forKey: .eventTeam)
+        player = try container.decode(PBPlayer.self, forKey: .player)
     }
 }
