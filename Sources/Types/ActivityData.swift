@@ -71,10 +71,12 @@ public struct SHLWidgetAttributes: ActivityAttributes {
         }
     }
     
+    public var id: String
     public var homeTeam: ActivityTeam
     public var awayTeam: ActivityTeam
     
-    public init(homeTeam: ActivityTeam, awayTeam: ActivityTeam) {
+    public init(id: String, homeTeam: ActivityTeam, awayTeam: ActivityTeam) {
+        self.id = id
         self.homeTeam = homeTeam
         self.awayTeam = awayTeam
     }

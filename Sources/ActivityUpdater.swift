@@ -17,7 +17,7 @@ public class ActivityUpdater {
     }
     
     func OverviewToAttrib(_ overview: GameOverview) -> SHLWidgetAttributes {
-        return SHLWidgetAttributes(homeTeam: ActivityTeam(name: overview.homeTeam.teamName, teamCode: overview.homeTeam.teamCode), awayTeam: ActivityTeam(name: overview.awayTeam.teamName, teamCode: overview.awayTeam.teamCode))
+        return SHLWidgetAttributes(id: overview.gameUuid, homeTeam: ActivityTeam(name: overview.homeTeam.teamName, teamCode: overview.homeTeam.teamCode), awayTeam: ActivityTeam(name: overview.awayTeam.teamName, teamCode: overview.awayTeam.teamCode))
     }
     
     public func start(match: GameOverview) throws {
