@@ -7,6 +7,7 @@
 
 import Foundation
 import ActivityKit
+import UserNotifications
 
 public class ActivityUpdater {
     public static var shared: ActivityUpdater = ActivityUpdater()
@@ -29,6 +30,16 @@ public class ActivityUpdater {
             content: .init(state: initState, staleDate: nil),
             pushType: .token
         )
+        
+        Task {
+            let center = UNUserNotificationCenter.current()
+            
+            do {
+                try await center.requestAuthorization(options: [.alert])
+            } catch {
+                // Handle errors that may occur during requestAuthorization.
+            }
+        }
         
         Task {
             for await pushToken in activity.pushTokenUpdates {
