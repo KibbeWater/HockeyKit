@@ -85,6 +85,8 @@ class GamePoller: NSObject, URLSessionDataDelegate {
     func startRequest() {
         let urlRequest = URLRequest(url: url)
         
+        print("Starting new GamePoller session")
+        
         let session = URLSession(configuration: .ephemeral)
         let dataTask = session.dataTask(with: urlRequest)
         task = dataTask
@@ -129,14 +131,15 @@ class GamePoller: NSObject, URLSessionDataDelegate {
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error as NSError?, error.code == NSURLErrorCancelled {
             print("Closed connection to live broadcaster")
-            return // If it was cancelled we should manage it ourselves
-        }
-        if let _err = error {
-            print(_err)
+            return // If it was cancelled we should manage it manually, do not restart
         }
         if (error as? URLError)?.code == .timedOut {
             print("Detected timeout error, restarting the request")
             startRequest()
+            return
+        }
+        if let _err = error {
+            print(_err)
         }
         callbacks.forEach { cb in
             cb(nil, error)
