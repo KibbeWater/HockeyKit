@@ -81,11 +81,12 @@ public struct Game: Identifiable, Equatable, Decodable {
 
         id = try container.decode(String.self, forKey: .id)
         
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
         let _date = try container.decode(String.self, forKey: .date)
         let _time = try container.decode(String.self, forKey: .time)
-        date = dateFormatter.date(from: "\(_date)T\(_time):00+0100") ?? Date.distantPast
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        date = dateFormatter.date(from: "\(_date) \(_time)") ?? Date.distantPast
         
         played = try container.decode(Bool.self, forKey: .played)
         overtime = try container.decode(Bool.self, forKey: .overtime)
