@@ -15,7 +15,7 @@ public struct Game: Identifiable, Equatable, Decodable {
     public var shootout: Bool
     public var ssgtUuid: String
     public var seriesCode: Series
-    public var venue: String
+    public var venue: String?
     public var homeTeam: Team
     public var awayTeam: Team
     public var liveGameUrl: String
@@ -83,6 +83,7 @@ public struct Game: Identifiable, Equatable, Decodable {
         
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
+        dateFormatter.locale = Locale(identifier: "sv-SE")
         let _date = try container.decode(String.self, forKey: .date)
         let _time = try container.decode(String.self, forKey: .time)
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -93,7 +94,7 @@ public struct Game: Identifiable, Equatable, Decodable {
         shootout = try container.decode(Bool.self, forKey: .shootout)
         ssgtUuid = try container.decode(String.self, forKey: .ssgtUuid)
         seriesCode = try container.decode(Series.self, forKey: .seriesCode)
-        venue = try container.decode(String.self, forKey: .venue)
+        venue = try container.decodeIfPresent(String.self, forKey: .venue)
         homeTeam = try container.decode(Team.self, forKey: .homeTeam)
         awayTeam = try container.decode(Team.self, forKey: .awayTeam)
         liveGameUrl = try container.decode(String.self, forKey: .liveGameUrl)
@@ -161,7 +162,6 @@ public class MatchInfo: ObservableObject {
     public func getLatest() async throws {
         do {
             let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/gameday/gameheader")!)
-            print(data)
             let decoder = JSONDecoder()
             let game = try decoder.decode([String: [Game]].self, from: data)
             
@@ -178,6 +178,7 @@ public class MatchInfo: ObservableObject {
                 }
             }
         } catch let error {
+            print(error)
             Logging.shared.log("ERR!")
             Logging.shared.log(String(error.localizedDescription))
         }
