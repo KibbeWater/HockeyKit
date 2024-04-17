@@ -18,7 +18,6 @@ public struct Game: Identifiable, Equatable, Decodable {
     public var venue: String?
     public var homeTeam: Team
     public var awayTeam: Team
-    public var liveGameUrl: String
     
     public struct Team: Codable {
         public var name: String
@@ -57,12 +56,11 @@ public struct Game: Identifiable, Equatable, Decodable {
                 code: "HV71",
                 result: 3,
                 logo: "https://sportality.cdn.s8y.se/team-logos/hv711_hv71.svg"
-            ),
-            liveGameUrl: ""
+            )
         )
     }
     
-    public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String, homeTeam: Team, awayTeam: Team, liveGameUrl: String) {
+    public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String, homeTeam: Team, awayTeam: Team) {
         self.id = id
         self.date = date
         self.played = played
@@ -73,7 +71,6 @@ public struct Game: Identifiable, Equatable, Decodable {
         self.venue = venue
         self.homeTeam = homeTeam
         self.awayTeam = awayTeam
-        self.liveGameUrl = liveGameUrl
     }
 
     public init(from decoder: Decoder) throws {
@@ -97,7 +94,6 @@ public struct Game: Identifiable, Equatable, Decodable {
         venue = try container.decodeIfPresent(String.self, forKey: .venue)
         homeTeam = try container.decode(Team.self, forKey: .homeTeam)
         awayTeam = try container.decode(Team.self, forKey: .awayTeam)
-        liveGameUrl = try container.decode(String.self, forKey: .liveGameUrl)
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -54,9 +54,13 @@ public class ActivityUpdater {
     }
     
     func updatePushToken(_ match: GameOverview, token: String) {
-        let json: [String: Any] = ["deviceUUID": deviceUUID.uuidString,
+        var json: [String: Any] = ["deviceUUID": deviceUUID.uuidString,
                                    "token": token,
                                    "matchId": match.gameUuid]
+        
+        #if DEBUG
+        json["environment"] = "development"
+        #endif
 
         let jsonData = try? JSONSerialization.data(withJSONObject: json)
 
