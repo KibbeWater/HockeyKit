@@ -48,6 +48,12 @@ public struct GameTime: Codable, Equatable {
         periodEnd = estimatedEndTime(periodTime)
     }
     
+    init(period: Int, periodTime: String, periodEnd: Date?) {
+        self.period = period
+        self.periodTime = periodTime
+        self.periodEnd = periodEnd
+    }
+    
     // Coding keys for mapping between struct properties and JSON keys
     private enum CodingKeys: String, CodingKey {
         case period
@@ -67,8 +73,6 @@ public struct GameTime: Codable, Equatable {
         
         // Calculate the end time by adding the game duration to the current time
         let estimatedEndDate = Date().addingTimeInterval(durationDate.timeIntervalSinceReferenceDate - maxGameDuration)
-        
-        
         
         return estimatedEndDate
     }
@@ -92,4 +96,42 @@ public struct GameData: Codable {
 public struct GameEvent {
     public var id: Int
     public var game: GameData
+}
+
+public extension GameOverview {
+    static func generateFake() -> GameOverview {
+        return GameOverview(
+            homeTeam: TeamData(
+                gameId: 533,
+                place: .home,
+                score: 2,
+                teamId: "087a-087aTQv9u",
+                teamName: "Frölunda",
+                teamCode: "FHC",
+                gameUuid: "qcz-3SPh13XBPn"
+            ),
+            awayTeam: TeamData(
+                gameId: 533,
+                place: .away,
+                score: 3,
+                teamId: "1a71-1a71gTHKh",
+                teamName: "Luleå Hockey",
+                teamCode: "LHF",
+                gameUuid: "qcz-3SPh13XBPn"
+            ),
+            homeGoals: 2,
+            awayGoals: 3,
+            state: .ongoing,
+            gameUuid: "qcz-3SPh13XBPn",
+            time: GameTime(
+                period: 2,
+                periodTime: "07:27",
+                periodEnd: Calendar.current.date(
+                    byAdding: .second,
+                    value: 447,
+                    to: Date.now
+                )
+            )
+        )
+    }
 }

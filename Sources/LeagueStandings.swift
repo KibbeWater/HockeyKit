@@ -165,15 +165,15 @@ public class LeagueStandings: ObservableObject, Equatable {
         return lhs.uuid == rhs.uuid
     }
     
-    public func fetchLeagues(skipCache: Bool = false) {
+    public func fetchLeagues(skipCache: Bool = false) async throws {
         Leagues.allCases.forEach { league in
             Task {
-                await fetchLeague(league: league, skipCache: skipCache)
+                try? await fetchLeague(league: league, skipCache: skipCache)
             }
         }
     }
     
-    public func fetchLeague(league: Leagues, skipCache: Bool = false, clearExisting: Bool = false) async -> StandingResults? {
+    public func fetchLeague(league: Leagues, skipCache: Bool = false, clearExisting: Bool = false) async throws -> StandingResults? {
         if clearExisting {
             self.standings[league] = nil
         }
@@ -186,27 +186,20 @@ public class LeagueStandings: ObservableObject, Equatable {
             }
         }
         
-        do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/league-standings?ssgtUuid=\(league.rawValue)")!)
+        let request = URLRequest(
+            url: .init(string: "\(url)/sports/league-standings?ssgtUuid=\(league.rawValue)")!,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData
+        )
         
-            do {
-                let decoder = JSONDecoder()
-                let result = try decoder.decode(StandingResults.self, from: data)
-                
-                DispatchQueue.main.async {
-                    self.standings[league] = CacheItem<StandingResults?>(result)
-                }
-                
-                return result
-            }
-        } catch let error {
-            print("ERR! fetchLeague")
-            print(error)
+        let (data, _) = try await URLSession.shared.data(for: request)
+    
+        let decoder = JSONDecoder()
+        let result = try decoder.decode(StandingResults.self, from: data)
+        
+        await MainActor.run {
+            self.standings[league] = CacheItem<StandingResults?>(result)
         }
         
-        DispatchQueue.main.async {
-            self.standings[league] = CacheItem<StandingResults?>(nil)
-        }
-        return nil
+        return result
     }
 }

@@ -21,6 +21,7 @@ public class ActivityUpdater {
         return SHLWidgetAttributes(id: overview.gameUuid, homeTeam: ActivityTeam(name: overview.homeTeam.teamName, teamCode: overview.homeTeam.teamCode), awayTeam: ActivityTeam(name: overview.awayTeam.teamName, teamCode: overview.awayTeam.teamCode))
     }
     
+    @available(iOS 16.2, *)
     public func start(match: GameOverview) throws {
         let attrib = OverviewToAttrib(match)
         let initState = OverviewToState(match)

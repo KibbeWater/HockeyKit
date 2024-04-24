@@ -38,7 +38,7 @@ public struct Game: Identifiable, Equatable, Decodable {
     public static func fakeData() -> Game {
         return Game(
             id: "qeX-4AC927yoX",
-            date: Date(),
+            date: Date.distantPast,
             played: true,
             overtime: true,
             shootout: false,
@@ -60,7 +60,7 @@ public struct Game: Identifiable, Equatable, Decodable {
         )
     }
     
-    public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String, homeTeam: Team, awayTeam: Team) {
+    public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String?, homeTeam: Team, awayTeam: Team) {
         self.id = id
         self.date = date
         self.played = played
@@ -156,27 +156,22 @@ public class MatchInfo: ObservableObject {
     public init() {}
     
     public func getLatest() async throws {
-        do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/gameday/gameheader")!)
-            let decoder = JSONDecoder()
-            let game = try decoder.decode([String: [Game]].self, from: data)
-            
-            var newMatches: [Game] = []
-            game.forEach { (key: String, value: [Game]) in
-                newMatches.append(contentsOf: value)
-            }
-            newMatches = newMatches.sorted { $0.date < $1.date }
-            
-            let _matches = newMatches
-            Task {
-                DispatchQueue.main.async {
-                    self.latestMatches = _matches
-                }
-            }
-        } catch let error {
-            print(error)
-            Logging.shared.log("ERR!")
-            Logging.shared.log(String(error.localizedDescription))
+        let request = URLRequest(
+            url: .init(string: "\(url)/gameday/gameheader")!,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData
+        )
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        
+        let decoder = JSONDecoder()
+        let game = try decoder.decode([String: [Game]].self, from: data)
+        
+        var newMatches: [Game] = game.flatMap { $1 }
+        newMatches = newMatches.sorted { $0.date < $1.date }
+        
+        let _matches = newMatches
+        await MainActor.run {
+            self.latestMatches = _matches
         }
     }
     
