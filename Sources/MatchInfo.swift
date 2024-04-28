@@ -7,6 +7,76 @@
 
 import Foundation
 
+public struct GameExtraInfo: Decodable {
+    public var gameInfo: GameInfo
+    public var homeTeam: Team
+    public var awayTeam: Team
+    public var ssgtUuid: String
+    
+    public struct Team: Decodable {
+        public var names: TeamNames
+        public var score: Int
+        
+        public struct TeamNames: Decodable {
+            public var code: String
+            public var long: String
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<GameExtraInfo.Team.CodingKeys> = try decoder.container(keyedBy: GameExtraInfo.Team.CodingKeys.self)
+            self.names = try container.decode(GameExtraInfo.Team.TeamNames.self, forKey: GameExtraInfo.Team.CodingKeys.names)
+            self.score = (try? container.decode(Int.self, forKey: GameExtraInfo.Team.CodingKeys.score)) ?? 0
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case names
+            case score
+        }
+    }
+    
+    public struct GameInfo: Decodable {
+        public var date: Date
+        public var overtime: Bool
+        public var shootout: Bool
+        public var gameUuid: String
+        public var state: GameStateInfo
+        public var arenaName: String
+        
+        public enum GameStateInfo: String, Decodable {
+            case post = "post_game"
+            case pre = "pre_game"
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<GameExtraInfo.GameInfo.CodingKeys> = try decoder.container(keyedBy: GameExtraInfo.GameInfo.CodingKeys.self)
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
+            dateFormatter.locale = Locale(identifier: "sv-SE")
+            let _date = try container.decode(String.self, forKey: .date)
+            let _time = try container.decode(String.self, forKey: .time)
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            date = dateFormatter.date(from: "\(_date) \(_time)") ?? Date.distantPast
+            
+            self.overtime = try container.decode(Bool.self, forKey: .overtime)
+            self.shootout = try container.decode(Bool.self, forKey: .shootout)
+            self.gameUuid = try container.decode(String.self, forKey: .gameUuid)
+            self.state = try container.decode(GameStateInfo.self, forKey: .state)
+            self.arenaName = try container.decode(String.self, forKey: .arenaName)
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case date
+            case time
+            case overtime
+            case shootout
+            case gameUuid
+            case state
+            case arenaName
+        }
+    }
+}
+
 public struct Game: Identifiable, Equatable, Decodable {
     public var id: String // uuid
     public var date: Date
@@ -23,7 +93,24 @@ public struct Game: Identifiable, Equatable, Decodable {
         public var name: String
         public var code: String
         public var result: Int
-        public var logo: String
+        
+        init(name: String, code: String, result: Int) {
+            self.name = name
+            self.code = code
+            self.result = result
+        }
+        
+        init(_ team: TeamData) {
+            self.name = team.teamName
+            self.code = team.teamCode
+            self.result = team.score
+        }
+        
+        init(_ team: GameExtraInfo.Team) {
+            self.name = team.names.long
+            self.code = team.names.code
+            self.result = team.score
+        }
     }
     
     public enum Series: String, Codable {
@@ -48,16 +135,27 @@ public struct Game: Identifiable, Equatable, Decodable {
             homeTeam: Game.Team(
                 name: "IK Oskarshamn",
                 code: "IKO",
-                result: 2,
-                logo: "https://sportality.cdn.s8y.se/team-logos/iko1_iko.svg"
+                result: 2
             ),
             awayTeam: Game.Team(
                 name: "HV71",
                 code: "HV71",
-                result: 3,
-                logo: "https://sportality.cdn.s8y.se/team-logos/hv711_hv71.svg"
+                result: 3
             )
         )
+    }
+    
+    public init(_ game: GameExtraInfo) {
+        self.id = game.gameInfo.gameUuid
+        self.date = game.gameInfo.date
+        self.played = game.gameInfo.state == .post
+        self.overtime = game.gameInfo.overtime
+        self.shootout = game.gameInfo.shootout
+        self.ssgtUuid = game.ssgtUuid
+        self.seriesCode = .SHL
+        self.venue = game.gameInfo.arenaName
+        self.homeTeam = .init(game.homeTeam)
+        self.awayTeam = .init(game.awayTeam)
     }
     
     public init(id: String, date: Date, played: Bool, overtime: Bool, shootout: Bool, ssgtUuid: String, seriesCode: Series, venue: String?, homeTeam: Team, awayTeam: Team) {
@@ -181,6 +279,21 @@ public class MatchInfo: ObservableObject {
             
             let decoder = JSONDecoder()
             let game = try decoder.decode(GameOverview.self, from: data)
+            
+            return game
+        } catch let error {
+            print("ERR!")
+            print(error)
+            return nil
+        }
+    }
+    
+    public func getMatchExtra(_ matchId: String) async throws -> GameExtraInfo? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info/\(matchId)")!)
+            
+            let decoder = JSONDecoder()
+            let game = try decoder.decode(GameExtraInfo.self, from: data)
             
             return game
         } catch let error {
