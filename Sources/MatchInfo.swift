@@ -320,4 +320,42 @@ public class MatchInfo: ObservableObject {
             return nil
         }
     }
+    
+    public func getSchedule(_ season: Season, gameType: GameType = .regular) async throws -> SeasonSchedule? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")!)
+            
+            print("\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")
+            
+            let decoder = JSONDecoder()
+            let game = try decoder.decode(SeasonSchedule.self, from: data)
+            
+            return game
+        } catch let error {
+            print("ERR!")
+            print(error)
+            return nil
+        }
+    }
+    
+    public func getSeason() async throws -> [Season]? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/season-series-game-types-filter")!)
+            
+            let decoder = JSONDecoder()
+            let game = try decoder.decode(SeasonAPIResponse.self, from: data)
+            
+            return game.season
+        } catch let error {
+            print("ERR!")
+            print(error)
+            return nil
+        }
+    }
+    
+    public func getCurrentSeason() async throws -> Season? {
+        guard let series = try await getSeason() else { return nil }
+        
+        return series.first
+    }
 }
