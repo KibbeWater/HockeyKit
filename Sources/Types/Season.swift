@@ -60,7 +60,7 @@ public struct SeasonSchedule: Codable, Equatable {
                 let container: KeyedDecodingContainer<SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys> = try decoder.container(keyedBy: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.self)
                 self.status = try container.decode(SeasonSchedule.ScheduleGame.ScheduleTeam.ScheduleTeamStatus.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.status)
                 self.uuid = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.uuid)
-                self.code = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.code)
+                self.code = (try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.code)).uppercased()
                 self.score = try? container.decode(Int.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.score)
                 self.names = try container.decode(StandingResults.TeamStanding.TeamStandingInfo.TeamInfo.TeamNames.self, forKey: SeasonSchedule.ScheduleGame.ScheduleTeam.CodingKeys.names)
             }

@@ -89,6 +89,10 @@ public struct Game: Identifiable, Equatable, Decodable {
     public var homeTeam: Team
     public var awayTeam: Team
     
+    public func isLive() -> Bool {
+        return !self.played && self.date < Date.now;
+    }
+    
     public struct Team: Codable {
         public var name: String
         public var code: String
@@ -179,10 +183,9 @@ public struct Game: Identifiable, Equatable, Decodable {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
         dateFormatter.locale = Locale(identifier: "sv-SE")
-        let _date = try container.decode(String.self, forKey: .date)
-        let _time = try container.decode(String.self, forKey: .time)
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-        date = dateFormatter.date(from: "\(_date) \(_time)") ?? Date.distantPast
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        let _date = try container.decode(String.self, forKey: .startDateTime)
+        date = dateFormatter.date(from: _date) ?? Date.distantPast
         
         played = try container.decode(Bool.self, forKey: .played)
         overtime = try container.decode(Bool.self, forKey: .overtime)
@@ -196,8 +199,9 @@ public struct Game: Identifiable, Equatable, Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case id = "uuid"
-        case date
-        case time
+//        case date
+//        case time
+        case startDateTime
         case played
         case overtime
         case shootout
