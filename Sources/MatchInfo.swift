@@ -57,7 +57,7 @@ public struct GameExtraInfo: Decodable {
             let _time = try container.decode(String.self, forKey: .time)
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
             date = dateFormatter.date(from: "\(_date) \(_time)") ?? Date.distantPast
-            
+
             self.overtime = try container.decode(Bool.self, forKey: .overtime)
             self.shootout = try container.decode(Bool.self, forKey: .shootout)
             self.gameUuid = try container.decode(String.self, forKey: .gameUuid)
@@ -180,12 +180,12 @@ public struct Game: Identifiable, Equatable, Decodable {
 
         id = try container.decode(String.self, forKey: .id)
         
+        let _date = try container.decode(String.self, forKey: .startDateTime)
+        
         let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
         dateFormatter.locale = Locale(identifier: "sv-SE")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        let _date = try container.decode(String.self, forKey: .startDateTime)
-        date = dateFormatter.date(from: _date) ?? Date.distantPast
+        date = formatTimeFromDate(_date, formatter: dateFormatter) ?? .distantPast
         
         played = try container.decode(Bool.self, forKey: .played)
         overtime = try container.decode(Bool.self, forKey: .overtime)
@@ -326,13 +326,22 @@ public class MatchInfo: ObservableObject {
     }
     
     public func getSchedule(_ season: Season, gameType: GameType = .regular) async throws -> SeasonSchedule? {
+        let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")!)
+        
+        print("\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")
+        
+        let decoder = JSONDecoder()
+        let game = try decoder.decode(SeasonSchedule.self, from: data)
+        
+        return game
+    }
+    
+    public func getSeason() async throws -> SeasonAPIResponse? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")!)
-            
-            print("\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/season-series-game-types-filter")!)
             
             let decoder = JSONDecoder()
-            let game = try decoder.decode(SeasonSchedule.self, from: data)
+            let game = try decoder.decode(SeasonAPIResponse.self, from: data)
             
             return game
         } catch let error {
@@ -342,24 +351,9 @@ public class MatchInfo: ObservableObject {
         }
     }
     
-    public func getSeason() async throws -> [Season]? {
-        do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/season-series-game-types-filter")!)
-            
-            let decoder = JSONDecoder()
-            let game = try decoder.decode(SeasonAPIResponse.self, from: data)
-            
-            return game.season
-        } catch let error {
-            print("ERR!")
-            print(error)
-            return nil
-        }
-    }
-    
     public func getCurrentSeason() async throws -> Season? {
-        guard let series = try await getSeason() else { return nil }
+        guard let game = try await getSeason() else { return nil }
         
-        return series.first
+        return game.season.first
     }
 }

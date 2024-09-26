@@ -110,16 +110,13 @@ class GamePoller: NSObject, URLSessionDataDelegate {
             let data = dataStr.replacing("data: ", with: "")
             
             let decoder = JSONDecoder()
-            do {
-                let game = try decoder.decode(GameData.self, from: String(data).data(using: .utf8)!)
+                guard let game = try? decoder.decode(GameData.self, from: String(data).data(using: .utf8)!) else { return }
                 callbacks.forEach { cb in
                     cb(GameEvent(id: Int(id)!, game: game), nil)
                 }
-            } catch let err {
-                refreshPoller()
+                /*refreshPoller()
                 print(err)
-                Logging.shared.log("Request failed, trying again...")
-            }
+                Logging.shared.log("Request failed, trying again...")*/
         }
     }
 

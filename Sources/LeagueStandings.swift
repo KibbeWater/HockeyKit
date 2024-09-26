@@ -149,15 +149,12 @@ public struct CacheItem<Element: Equatable>: Equatable {
     }
 }
 
-public enum Leagues: String, CaseIterable {
-    case SHL = "qcz-3Nwp4dmpw"
-    case SDHL = "qd0-2O1wDzzQm"
-}
-
 public class LeagueStandings: ObservableObject, Equatable {
     private var url: String = "https://www.shl.se/api"
-    @Published public var standings: Dictionary<Leagues, CacheItem<StandingResults?>> = Dictionary<Leagues, CacheItem<StandingResults?>>()
     private var uuid = UUID().uuidString
+    private var cachedLeagueUUID: String?
+    
+    @Published public var standings: CacheItem<StandingResults>?
     
     public init() {}
     
@@ -165,29 +162,39 @@ public class LeagueStandings: ObservableObject, Equatable {
         return lhs.uuid == rhs.uuid
     }
     
-    public func fetchLeagues(skipCache: Bool = false) async throws {
+    /* private func fetchLeagues(skipCache: Bool = false) async throws {
         Leagues.allCases.forEach { league in
             Task {
-                try? await fetchLeague(league: league, skipCache: skipCache)
+                try? await fetchLeague(skipCache: skipCache)
             }
         }
-    }
+    } */
     
-    public func fetchLeague(league: Leagues, skipCache: Bool = false, clearExisting: Bool = false) async throws -> StandingResults? {
+    public func fetchLeague(skipCache: Bool = false, clearExisting: Bool = false) async throws -> StandingResults? {
         if clearExisting {
-            self.standings[league] = nil
+            self.cachedLeagueUUID = nil
+            self.standings = nil
         }
         
         if !skipCache {
-            if self.standings[league]?.isValid(hours: 1) != nil {
-                if let _cache = self.standings[league]?.cacheItem {
+            if self.standings?.isValid(hours: 1) != nil {
+                if let _cache = self.standings?.cacheItem {
                     return _cache
                 }
             }
         }
         
+        if self.cachedLeagueUUID == nil {
+            let matchInfo = MatchInfo()
+            guard let apiResponse = try? await matchInfo.getSeason() else { return nil }
+            
+            self.cachedLeagueUUID = apiResponse.ssgtUuid
+        }
+        
+        guard let _league = self.cachedLeagueUUID else { return nil }
+        
         let request = URLRequest(
-            url: .init(string: "\(url)/sports/league-standings?ssgtUuid=\(league.rawValue)")!,
+            url: .init(string: "\(url)/sports/league-standings?ssgtUuid=\(_league)")!,
             cachePolicy: .reloadIgnoringLocalAndRemoteCacheData
         )
         
@@ -197,7 +204,7 @@ public class LeagueStandings: ObservableObject, Equatable {
         let result = try decoder.decode(StandingResults.self, from: data)
         
         await MainActor.run {
-            self.standings[league] = CacheItem<StandingResults?>(result)
+            self.standings = CacheItem<StandingResults>(result)
         }
         
         return result

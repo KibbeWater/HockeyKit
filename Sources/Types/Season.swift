@@ -2,6 +2,7 @@ import Foundation
 
 public struct SeasonAPIResponse: Codable, Equatable {
     public var season: [Season]
+    public var ssgtUuid: String
 }
 
 public struct Season: Codable, Equatable {
@@ -92,9 +93,10 @@ public struct SeasonSchedule: Codable, Equatable {
         public init(from decoder: any Decoder) throws {
             let container: KeyedDecodingContainer<SeasonSchedule.ScheduleGame.CodingKeys> = try decoder.container(keyedBy: SeasonSchedule.ScheduleGame.CodingKeys.self)
             self.id = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.CodingKeys.id)
-            let dateFormatter = ISO8601DateFormatter()
-            let date = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.CodingKeys.startDateTime)
-            self.startDateTime = dateFormatter.date(from: date) ?? Date.distantPast
+            
+            let _date = try container.decode(String.self, forKey: .startDateTime)
+            self.startDateTime = formatTimeFromISO(_date) ?? .distantPast
+            
             self.date = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.CodingKeys.date)
             self.time = try container.decode(String.self, forKey: SeasonSchedule.ScheduleGame.CodingKeys.time)
             self.state = try container.decode(ScheduleGameState.self, forKey: SeasonSchedule.ScheduleGame.CodingKeys.state)
