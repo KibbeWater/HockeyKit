@@ -350,4 +350,13 @@ public class MatchInfo: ObservableObject {
         
         return game.season.first
     }
+    
+    public func getGameStats(_ game: Game) async throws -> GameStatsAPIResponse? {
+        let (data, _) = try await URLSession.shared.data(from: URL(string: "\(getBaseURL())/gameday/team-stats/\(game.id)")!)
+        
+        let decoder = JSONDecoder()
+        let game = try decoder.decode(GameStatsAPIResponse.self, from: data)
+        
+        return game
+    }
 }
