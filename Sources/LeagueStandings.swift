@@ -203,10 +203,10 @@ public class LeagueStandings: ObservableObject, Equatable {
         let decoder = JSONDecoder()
         let result = try decoder.decode(StandingResults.self, from: data)
         
-        await MainActor.run {
+        DispatchQueue.main.async {
             self.standings = CacheItem<StandingResults>(result)
         }
-        
+               
         return result
     }
 }

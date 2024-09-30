@@ -14,6 +14,7 @@ public struct GameExtraInfo: Decodable {
     public var ssgtUuid: String
     
     public struct Team: Decodable {
+        public var uuid: String
         public var names: TeamNames
         public var score: Int
         
@@ -24,11 +25,13 @@ public struct GameExtraInfo: Decodable {
         
         public init(from decoder: any Decoder) throws {
             let container: KeyedDecodingContainer<GameExtraInfo.Team.CodingKeys> = try decoder.container(keyedBy: GameExtraInfo.Team.CodingKeys.self)
+            self.uuid = try container.decode(String.self, forKey: GameExtraInfo.Team.CodingKeys.uuid)
             self.names = try container.decode(GameExtraInfo.Team.TeamNames.self, forKey: GameExtraInfo.Team.CodingKeys.names)
             self.score = (try? container.decode(Int.self, forKey: GameExtraInfo.Team.CodingKeys.score)) ?? 0
         }
         
         private enum CodingKeys: String, CodingKey {
+            case uuid
             case names
             case score
         }
@@ -50,13 +53,8 @@ public struct GameExtraInfo: Decodable {
         public init(from decoder: any Decoder) throws {
             let container: KeyedDecodingContainer<GameExtraInfo.GameInfo.CodingKeys> = try decoder.container(keyedBy: GameExtraInfo.GameInfo.CodingKeys.self)
             
-            let dateFormatter = DateFormatter()
-            dateFormatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
-            dateFormatter.locale = Locale(identifier: "sv-SE")
-            let _date = try container.decode(String.self, forKey: .date)
-            let _time = try container.decode(String.self, forKey: .time)
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-            date = dateFormatter.date(from: "\(_date) \(_time)") ?? Date.distantPast
+            let _date = try container.decode(String.self, forKey: .startDateTime)
+            date = formatTimeFromISO(_date) ?? .distantPast
 
             self.overtime = try container.decode(Bool.self, forKey: .overtime)
             self.shootout = try container.decode(Bool.self, forKey: .shootout)
@@ -66,8 +64,7 @@ public struct GameExtraInfo: Decodable {
         }
         
         private enum CodingKeys: String, CodingKey {
-            case date
-            case time
+            case startDateTime
             case overtime
             case shootout
             case gameUuid
@@ -77,7 +74,7 @@ public struct GameExtraInfo: Decodable {
     }
 }
 
-public struct Game: Identifiable, Equatable, Decodable {
+public struct Game: Identifiable, Equatable, Hashable, Decodable {
     public var id: String // uuid
     public var date: Date
     public var played: Bool
@@ -93,7 +90,7 @@ public struct Game: Identifiable, Equatable, Decodable {
         return !self.played && self.date < Date.now;
     }
     
-    public struct Team: Codable {
+    public struct Team: Codable, Hashable {
         public var name: String
         public var code: String
         public var result: Int
@@ -252,14 +249,13 @@ class EventFactory {
 }
 
 public class MatchInfo: ObservableObject {
-    private var url: String = "https://www.shl.se/api"
     @Published public var latestMatches: [Game] = []
     
     public init() {}
     
     public func getLatest() async throws {
         let request = URLRequest(
-            url: .init(string: "\(url)/gameday/gameheader")!,
+            url: .init(string: "\(getBaseURL())/gameday/gameheader")!,
             cachePolicy: .reloadIgnoringLocalAndRemoteCacheData
         )
         
@@ -279,7 +275,7 @@ public class MatchInfo: ObservableObject {
     
     public func getMatch(_ matchId: String) async throws -> GameOverview? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/gameday/game-overview/\(matchId)")!)
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(getBaseURL())/gameday/game-overview/\(matchId)")!)
             
             let decoder = JSONDecoder()
             let game = try decoder.decode(GameOverview.self, from: data)
@@ -294,7 +290,7 @@ public class MatchInfo: ObservableObject {
     
     public func getMatchExtra(_ matchId: String) async throws -> GameExtraInfo? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info/\(matchId)")!)
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(getBaseURL())/sports/game-info/\(matchId)")!)
             
             let decoder = JSONDecoder()
             let game = try decoder.decode(GameExtraInfo.self, from: data)
@@ -325,10 +321,8 @@ public class MatchInfo: ObservableObject {
         }
     }
     
-    public func getSchedule(_ season: Season, gameType: GameType = .regular) async throws -> SeasonSchedule? {
-        let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")!)
-        
-        print("\(url)/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)&gamePlace=all&played=all")
+    public func getSchedule(_ season: Season, gameType: GameType = .regular, team: String? = nil) async throws -> SeasonSchedule? {
+        let (data, _) = try await URLSession.shared.data(from: URL(string: "\(getBaseURL())/sports/game-info?seasonUuid=\(season.uuid)&seriesUuid=qQ9-bb0bzEWUk&gameTypeUuid=\(gameType.rawValue)\(team == nil ? "" : "&teams[]=\(team!)")&gamePlace=all&played=all")!)
         
         let decoder = JSONDecoder()
         let game = try decoder.decode(SeasonSchedule.self, from: data)
@@ -338,7 +332,7 @@ public class MatchInfo: ObservableObject {
     
     public func getSeason() async throws -> SeasonAPIResponse? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(url)/sports/season-series-game-types-filter")!)
+            let (data, _) = try await URLSession.shared.data(from: URL(string: "\(getBaseURL())/sports/season-series-game-types-filter")!)
             
             let decoder = JSONDecoder()
             let game = try decoder.decode(SeasonAPIResponse.self, from: data)

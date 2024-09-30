@@ -10,7 +10,7 @@ import ActivityKit
 import UserNotifications
 
 public class ActivityUpdater {
-    public static var shared: ActivityUpdater = ActivityUpdater()
+    @MainActor public static let shared: ActivityUpdater = ActivityUpdater()
     var deviceUUID = UUID()
     
     func OverviewToState(_ overview: GameOverview) -> SHLWidgetAttributes.ContentState {

@@ -20,7 +20,7 @@ public class GameUpdater: ObservableObject {
                 game = match
             }
         } catch _ {
-            Logging.shared.log("Failed to fetch active match info")
+            await Logging.shared.log("Failed to fetch active match info")
         }
     }
     

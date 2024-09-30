@@ -45,3 +45,8 @@ func formatTimeFromISO(_ date: String) -> Date? {
     
     return nil
 }
+
+// Get base API url
+func getBaseURL() -> String {
+    "https://www.shl.se/api"
+}

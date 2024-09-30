@@ -8,7 +8,7 @@
 import Foundation
 
 public class Logging {
-    public static var shared = Logging()
+    @MainActor public static var shared = Logging()
     
     private var _messages: [String] = []
     
