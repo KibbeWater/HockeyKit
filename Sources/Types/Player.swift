@@ -15,7 +15,6 @@ public struct PlayerAttribute: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        
         let _floatVal = try? container.decodeIfPresent(Float.self, forKey: .value)
         let _stringVal = try? container.decodeIfPresent(String.self, forKey: .value)
         
@@ -32,7 +31,13 @@ public struct PlayerTeam: Codable {
     public let code: String
 }
 
-public struct Player: Codable {
+public enum PlayerStatisticKey: String, Codable {
+    case saves = "SVS"
+    case savesPercent = "SVSPerc"
+    case goalsPerHour = "GAA"
+}
+
+public class Player: Codable, Equatable {
     public let uuid: String
     public let age: PlayerAttribute
     public let birthDate: String
@@ -46,4 +51,17 @@ public struct Player: Codable {
     public let seasonStats: [PlayerAttribute]
     public let weight: PlayerAttribute
     public let team: PlayerTeam
+    
+    public func getStats(for key: PlayerStatisticKey) -> Float? {
+        let stats = seasonStats.first(where: { $0.field == key.rawValue })
+        return stats?.value
+    }
+    
+    public func getSeasonStats() async throws -> PlayerGameLog? {
+        return try await PlayerAPI.shared.getGameLog(id: self.uuid)
+    }
+    
+    public static func == (lhs: Player, rhs: Player) -> Bool {
+        lhs.uuid == rhs.uuid
+    }
 }
