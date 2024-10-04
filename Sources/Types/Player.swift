@@ -32,6 +32,7 @@ public struct PlayerTeam: Codable {
 }
 
 public enum PlayerStatisticKey: String, Codable {
+    case matches = "GPI"
     case saves = "SVS"
     case savesPercent = "SVSPerc"
     case goalsPerHour = "GAA"

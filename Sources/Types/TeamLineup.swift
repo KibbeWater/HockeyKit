@@ -93,7 +93,7 @@ public struct LineupPlayer: Codable {
     
     public static func fakeData() -> LineupPlayer {
         LineupPlayer(
-            uuid: "qYD-5ySYjdxTG",
+            uuid: "qTN-2OR2VDUpf",
             playerType: .athlete,
             firstName: "John",
             lastName: "Snow",
