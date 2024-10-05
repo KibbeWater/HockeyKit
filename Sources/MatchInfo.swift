@@ -74,7 +74,7 @@ public struct GameExtraInfo: Decodable {
     }
 }
 
-public struct Game: Identifiable, Equatable, Hashable, Decodable {
+public struct Game: Identifiable, Equatable, Hashable, Codable {
     public var id: String // uuid
     public var date: Date
     public var played: Bool
@@ -177,7 +177,7 @@ public struct Game: Identifiable, Equatable, Hashable, Decodable {
 
         id = try container.decode(String.self, forKey: .id)
         
-        let _date = try container.decode(String.self, forKey: .startDateTime)
+        let _date = try container.decode(String.self, forKey: .date)
         
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "sv-SE")
@@ -198,7 +198,7 @@ public struct Game: Identifiable, Equatable, Hashable, Decodable {
         case id = "uuid"
 //        case date
 //        case time
-        case startDateTime
+        case date = "startDateTime"
         case played
         case overtime
         case shootout
@@ -207,7 +207,6 @@ public struct Game: Identifiable, Equatable, Hashable, Decodable {
         case venue
         case homeTeam
         case awayTeam
-        case liveGameUrl
     }
 }
 
