@@ -10,8 +10,9 @@ import Foundation
 enum HockeyAPIError: Error, LocalizedError {
     case networkError
     case decodingError
+    case notFound
     case serverError(statusCode: Int)
-    case internelError(description: String)
+    case internalError(description: String)
 
     var errorDescription: String? {
         switch self {
@@ -19,9 +20,11 @@ enum HockeyAPIError: Error, LocalizedError {
             return "Network error occurred. Please try again."
         case .decodingError:
             return "Failed to decode the response."
+        case .notFound:
+            return "Resource not found."
         case .serverError(let statusCode):
             return "Server error with status code \(statusCode)."
-        case .internelError(let description):
+        case .internalError(let description):
             return "Internal error: \(description)."
         }
     }

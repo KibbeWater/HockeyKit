@@ -8,10 +8,11 @@
 import Foundation
 
 enum DateUtils {
+    private static let timeZone: TimeZone = TimeZone(identifier: "Europe/Stockholm")!
+    
     /// A shared date formatter configured for the `Europe/Stockholm` timezone.
-    private static let stockholmDateFormatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let stockholmDateFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
-        formatter.timeZone = TimeZone(identifier: "Europe/Stockholm")
         formatter.formatOptions = [
             .withInternetDateTime, // Full date and time with timezone
             .withFractionalSeconds // Include fractional seconds if available
@@ -24,7 +25,8 @@ enum DateUtils {
     /// - Parameter isoDateString: The ISO8601 date string to parse.
     /// - Returns: A `Date` object if parsing succeeds, or `nil` otherwise.
     static func parseISODate(_ isoDateString: String) -> Date? {
-        return stockholmDateFormatter.date(from: isoDateString)
+        let date = stockholmDateFormatter.date(from: isoDateString)
+        return date?.addingTimeInterval(TimeInterval(timeZone.secondsFromGMT()))
     }
 
     /// Formats a `Date` object into an ISO8601 string in the `Europe/Stockholm` timezone.

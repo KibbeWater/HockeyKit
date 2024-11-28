@@ -17,7 +17,7 @@ public enum GameType: String {
     case finals = "qQ9-7debq38kX"
 }
 
-public struct Game: Codable, Identifiable {
+public struct Game: Codable, Identifiable, Sendable {
     public var id: String
     
     public var date: Date

@@ -8,6 +8,6 @@
 import Foundation
 
 protocol SeasonServiceProtocol {
-    func getSeasons(completion: @escaping (Result<[Season], Error>) -> Void)
-    func getCurrent(completion: @escaping (Result<Season, Error>) -> Void)
+    func getSeasons() async throws -> [Season]
+    func getCurrent() async throws -> Season
 }

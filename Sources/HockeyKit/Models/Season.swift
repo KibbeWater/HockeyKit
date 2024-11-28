@@ -14,25 +14,25 @@ public struct Season: Codable {
         let language: String
         let translation: String
     }
-
+    
     public let uuid: String
     public let code: String
     public let names: [Name]
     public let createdBy: String?
     public let deleted: Bool
-
+    
     // Internal properties for date parsing
     private let createdAt: String?
     private let lastModified: String?
-
+    
     // Computed properties for public use
     public var createdDate: Date? {
         guard let createdAt = createdAt else { return nil }
-        return ISO8601DateFormatter().date(from: createdAt)
+        return DateUtils.parseISODate(createdAt)
     }
-
+    
     public var lastModifiedDate: Date? {
         guard let lastModified = lastModified else { return nil }
-        return ISO8601DateFormatter().date(from: lastModified)
+        return DateUtils.parseISODate(lastModified)
     }
 }
