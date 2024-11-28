@@ -14,6 +14,7 @@ public enum ActivityState: String, Codable {
     case onbreak = "PeriodBreak"
     case overtime = "Overtime"
     case ended = "GameEnded"
+    case intermission = "Intermission"
 }
 
 public struct ActivityTeam: Codable {

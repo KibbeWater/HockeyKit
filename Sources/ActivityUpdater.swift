@@ -21,6 +21,51 @@ public class ActivityUpdater {
         return SHLWidgetAttributes(id: overview.gameUuid, homeTeam: ActivityTeam(name: overview.homeTeam.teamName, teamCode: overview.homeTeam.teamCode), awayTeam: ActivityTeam(name: overview.awayTeam.teamName, teamCode: overview.awayTeam.teamCode))
     }
     
+    func OverviewToAttrib(_ match: Game) -> SHLWidgetAttributes {
+        return SHLWidgetAttributes(id: match.id, homeTeam: ActivityTeam(name: match.homeTeam.name, teamCode: match.homeTeam.code), awayTeam: ActivityTeam(name: match.awayTeam.name, teamCode: match.awayTeam.code))
+    }
+    
+    @available(iOS 16.2, *)
+    public func start(match: Game) throws {
+        let attrib = OverviewToAttrib(match)
+        let initState = SHLWidgetAttributes.ContentState(
+            homeScore: 0,
+            awayScore: 0,
+            period: ActivityPeriod(
+                period: 1,
+                periodEnd: "",
+                state: .intermission
+            )
+        )
+        
+        let activity = try Activity.request(
+            attributes: attrib,
+            content: .init(state: initState, staleDate: nil),
+            pushType: .token
+        )
+        
+        Task {
+            let center = UNUserNotificationCenter.current()
+            
+            do {
+                try await center.requestAuthorization(options: [.alert])
+            } catch {
+                
+            }
+        }
+        
+        Task {
+            for await pushToken in activity.pushTokenUpdates {
+                let pushTokenString = pushToken.reduce("") {
+                    $0 + String(format: "%02x", $1)
+                }
+                
+                // Send the push token
+                updatePushToken(match.id, token: pushTokenString)
+            }
+        }
+    }
+    
     @available(iOS 16.2, *)
     public func start(match: GameOverview) throws {
         let attrib = OverviewToAttrib(match)
@@ -49,15 +94,15 @@ public class ActivityUpdater {
                 }
                 
                 // Send the push token
-                updatePushToken(match, token: pushTokenString)
+                updatePushToken(match.gameUuid, token: pushTokenString)
             }
         }
     }
     
-    func updatePushToken(_ match: GameOverview, token: String) {
+    func updatePushToken(_ matchUUID: String, token: String) {
         var json: [String: Any] = ["deviceUUID": deviceUUID.uuidString,
                                    "token": token,
-                                   "matchId": match.gameUuid]
+                                   "matchId": matchUUID]
         
         #if DEBUG
         json["environment"] = "development"

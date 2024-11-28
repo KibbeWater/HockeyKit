@@ -19,7 +19,7 @@ func _formatDate(_ date: Date) -> Date? {
 }
 
 // Normalize dates to Europe/Stockholm time, I'm sure this can be improved but it works
-func formatTimeFromDate(_ date: String, formatter: DateFormatter? = nil) -> Date? {
+public func formatTimeFromDate(_ date: String, formatter: DateFormatter? = nil) -> Date? {
     let dateFormatter = formatter ?? DateFormatter()
     dateFormatter.timeZone = .gmt
     
@@ -33,7 +33,7 @@ func formatTimeFromDate(_ date: String, formatter: DateFormatter? = nil) -> Date
 }
 
 // Normalize dates to Europe/Stockholm time, I'm sure this can be improved but it works
-func formatTimeFromISO(_ date: String) -> Date? {
+public func formatTimeFromISO(_ date: String) -> Date? {
     let dateFormatter = ISO8601DateFormatter()
     dateFormatter.timeZone = .gmt
     
