@@ -6,5 +6,5 @@
 //
 
 protocol StandingServiceProtocol {
-    func getStandings(for season: Season, completion: @escaping (Result<Standings, Error>) -> Void)
+    func getStandings(series: Series) async throws -> Standings
 }

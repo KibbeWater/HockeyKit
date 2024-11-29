@@ -18,7 +18,9 @@ enum Endpoint {
     case teams
     case teamLineup(SiteTeam)
     
-    case seasons
+    case standings(Series)
+    
+    case siteSettings
 
     var url: URL {
         switch self {
@@ -30,7 +32,9 @@ enum Endpoint {
         case .teams: return Self.baseURL.appendingPathComponent("/site/settings")
         case .teamLineup(let team): return Self.baseURL.appendingPathComponent("/sports/players/\(team.id)")
             
-        case .seasons: return Self.baseURL.appendingPathComponent("/sports/season-series-game-types-filter")
+        case .standings(let series): return Self.baseURL.appendingPathComponent("/sports/league-standings?ssgtUuid=\(series.id)")
+            
+        case .siteSettings: return Self.baseURL.appendingPathComponent("/sports/season-series-game-types-filter")
         }
     }
 }

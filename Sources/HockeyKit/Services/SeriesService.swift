@@ -1,21 +1,18 @@
 //
-//  SeasonService.swift
+//  SeriesService.swift
 //  HockeyKit
 //
-//  Created by Linus Rönnbäck Larsson on 28/11/24.
+//  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
-
-import Foundation
-import Cache
 
 fileprivate struct SeasonAPIResponse: Codable {
     let season: [Season]
     let ssgtUuid: String
 }
 
-class SeasonService: SeasonServiceProtocol {
+class SeriesService: SeriesServiceProtocol {
     private let networkManager: NetworkManager
-    private let cache = initCache(forKey: "SeasonService")
+    private let cache = initCache(forKey: "SeriesService")
     
     init(networkManager: NetworkManager) {
         self.networkManager = networkManager
@@ -34,20 +31,8 @@ class SeasonService: SeasonServiceProtocol {
         
         return res
     }
-
-    func getSeasons() async throws -> [Season] {
-        return try await getSiteSettings().season
-    }
     
-    func getSeries() async throws -> Series {
+    func getCurrentSeries() async throws -> Series? {
         return Series(id: try await getSiteSettings().ssgtUuid)
-    }
-    
-    func getCurrent() async throws -> Season {
-        let seasons = try await getSeasons()
-        guard let firstSeason = seasons.first else {
-            throw HockeyAPIError.internalError(description: "Season response was empty")
-        }
-        return firstSeason
     }
 }
