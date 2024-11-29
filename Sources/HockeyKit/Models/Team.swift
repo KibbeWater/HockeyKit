@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol TeamTransformable {
+    func toTeam() -> Team
+}
+
 public struct Team: Codable, Sendable {
     public var name: String
     public var code: String

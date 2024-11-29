@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol GameTransformable: Codable {
+protocol GameTransformable {
     func toGame() -> Game
 }
 

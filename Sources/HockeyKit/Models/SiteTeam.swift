@@ -8,7 +8,15 @@
 import Foundation
 
 
-public struct SiteTeam: Identifiable, Equatable, Hashable, Codable {
+public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransformable {
+    func toTeam() -> Team {
+        Team(
+            name: name,
+            code: names.code,
+            result: 0
+        )
+    }
+    
     public static func == (lhs: SiteTeam, rhs: SiteTeam) -> Bool {
         return lhs.id == rhs.id
     }

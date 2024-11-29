@@ -39,10 +39,6 @@ class SeasonService: SeasonServiceProtocol {
         return try await getSiteSettings().season
     }
     
-    func getSeries() async throws -> Series {
-        return Series(id: try await getSiteSettings().ssgtUuid)
-    }
-    
     func getCurrent() async throws -> Season {
         let seasons = try await getSeasons()
         guard let firstSeason = seasons.first else {
