@@ -35,6 +35,21 @@ class MatchService: MatchServiceProtocol {
         
         return games
     }
+    
+    func getMatchStats(_ game: Game) async throws -> GameStats {
+        guard game.played else { throw HockeyAPIError.gameNotPlayed }
+        
+        let statsStorage = cache.transformCodable(ofType: GameStats.self)
+        
+        if let stats = try? await statsStorage.async.object(forKey: "stats_\(game.id)") {
+            return stats
+        }
+        
+        let stats: GameStats = try await networkManager.request(endpoint: .matchStats(game))
+        try? await statsStorage.async.setObject(stats, forKey: "stats_\(game.id)")
+        
+        return stats
+    }
 }
 
 fileprivate struct ScheduleResponse: Codable {

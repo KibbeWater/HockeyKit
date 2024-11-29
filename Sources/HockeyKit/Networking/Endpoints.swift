@@ -12,6 +12,7 @@ enum Endpoint {
 
     case matchesLatest
     case matchesSchedule(Season, GameType = GameType.regular, Team? = nil)
+    case matchStats(Game)
     case matchExtra(Game)
     case match(String)
     
@@ -40,6 +41,7 @@ enum Endpoint {
           ]).appending(queryItems: team == nil ? [] : [
             .init(name: "teams[]", value: team!.name)
           ])
+        case .matchStats(let game): return Self.baseURL.appendingPathComponent("/gameday/team-stats/\(game.id)")
         case .matchExtra(let game): return Self.baseURL.appendingPathComponent("/sports/game-info/\(game.id)")
         case .match(let id): return Self.baseURL.appendingPathComponent("/gameday/game-overview/\(id)")
             

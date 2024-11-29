@@ -7,10 +7,11 @@
 
 import Foundation
 
-enum HockeyAPIError: Error, LocalizedError {
+enum HockeyAPIError: Error, LocalizedError, Equatable {
     case networkError
     case decodingError
     case notFound
+    case gameNotPlayed
     case serverError(statusCode: Int)
     case internalError(description: String)
 
@@ -20,6 +21,8 @@ enum HockeyAPIError: Error, LocalizedError {
             return "Network error occurred. Please try again."
         case .decodingError:
             return "Failed to decode the response."
+        case .gameNotPlayed:
+            return "Requested game is not yet played."
         case .notFound:
             return "Resource not found."
         case .serverError(let statusCode):
