@@ -27,7 +27,8 @@ class NetworkManager {
         do {
             let decodedResponse = try JSONDecoder().decode(T.self, from: data)
             return decodedResponse
-        } catch {
+        } catch(let err) {
+            print(err)
             throw HockeyAPIError.decodingError
         }
     }
