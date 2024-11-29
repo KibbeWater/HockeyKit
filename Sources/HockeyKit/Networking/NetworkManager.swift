@@ -14,7 +14,7 @@ class NetworkManager {
         self.session = session
     }
 
-    func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
+    func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
         let request = URLRequest(url: endpoint.url)
         // request.httpMethod = endpoint.method
         

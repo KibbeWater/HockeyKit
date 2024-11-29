@@ -20,7 +20,7 @@ class PlayerService: PlayerServiceProtocol {
             return player
         }
         
-        let player: Player = try await networkManager.request(endpoint: .player(id))
+        let player: Player = try await networkManager.request(endpoint: Endpoint.player(id))
         try? await playerStorage.async.setObject(player, forKey: "p_" + id, expiry: .seconds(24 * 60 * 60))
         
         return player
@@ -33,7 +33,7 @@ class PlayerService: PlayerServiceProtocol {
             return log.flatMap({ $0.stats })
         }
         
-        let logs: [LogResponse] = try await networkManager.request(endpoint: .playerGameLog(player))
+        let logs: [LogResponse] = try await networkManager.request(endpoint: Endpoint.playerGameLog(player))
         try? await logStorage.async.setObject(logs, forKey: "log_\(player.uuid)")
         
         return logs.flatMap({ $0.stats })

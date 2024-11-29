@@ -7,7 +7,13 @@
 
 import Foundation
 
-enum Endpoint {
+protocol Endpoints {
+    static var baseURL: URL { get }
+    
+    var url: URL { get }
+}
+
+enum Endpoint: Endpoints {
     static let baseURL = URL(string: "https://shl.se/api")!
 
     case matchesLatest
@@ -57,6 +63,18 @@ enum Endpoint {
                 .appending(queryItems: [.init(name: "playerUuid", value: player.uuid)])
             
         case .siteSettings: return Self.baseURL.appendingPathComponent("/sports/season-series-game-types-filter")
+        }
+    }
+}
+
+enum LiveEndpoint: Endpoints {
+    static let baseURL = URL(string: "https://game-data.s8y.se")!
+    
+    case playByPlay(Game)
+    
+    var url: URL {
+        switch self {
+        case .playByPlay(let game): return Self.baseURL.appendingPathComponent("/play-by-play/by-game-uuid/\(game.id)")
         }
     }
 }

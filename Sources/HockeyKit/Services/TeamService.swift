@@ -29,7 +29,7 @@ class TeamService: TeamServiceProtocol {
             return teams
         }
         
-        let res: TeamSettingsAPIResponse = try await networkManager.request(endpoint: .teams)
+        let res: TeamSettingsAPIResponse = try await networkManager.request(endpoint: Endpoint.teams)
         
         try? await teamStorage.async.setObject(res.teamsInSite, forKey: "team-list")
         
@@ -46,6 +46,6 @@ class TeamService: TeamServiceProtocol {
     }
     
     func getLineup(team: SiteTeam) async throws -> [TeamLineup] {
-        return try await networkManager.request(endpoint: .teamLineup(team))
+        return try await networkManager.request(endpoint: Endpoint.teamLineup(team))
     }
 }

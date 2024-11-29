@@ -25,7 +25,7 @@ class SeriesService: SeriesServiceProtocol {
             return cachedSeasons
         }
         
-        let res: SeasonAPIResponse = try await networkManager.request(endpoint: .siteSettings)
+        let res: SeasonAPIResponse = try await networkManager.request(endpoint: Endpoint.siteSettings)
         
         try? await seasonStorage.async.setObject(res, forKey: "season-response", expiry: .seconds(24 * 60 * 60))
         

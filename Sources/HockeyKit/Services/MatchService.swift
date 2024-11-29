@@ -17,7 +17,7 @@ class MatchService: MatchServiceProtocol {
     }
     
     func getLatest() async throws -> [Game] {
-        let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: .matchesLatest)
+        let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: Endpoint.matchesLatest)
         return req.flatMap { $1 }.map({ $0.toGame() })
     }
     
@@ -28,7 +28,7 @@ class MatchService: MatchServiceProtocol {
             return cachedSchedule
         }
         
-        let response: ScheduleResponse = try await networkManager.request(endpoint: .matchesSchedule(season, .regular))
+        let response: ScheduleResponse = try await networkManager.request(endpoint: Endpoint.matchesSchedule(season, .regular))
         let games = response.gameInfo.map({ $0.toGame() })
         
         try? await scheduleStorage.async.setObject(games, forKey: season.uuid, expiry: .seconds(24 * 60 * 60))
@@ -45,10 +45,18 @@ class MatchService: MatchServiceProtocol {
             return stats
         }
         
-        let stats: GameStats = try await networkManager.request(endpoint: .matchStats(game))
+        let stats: GameStats = try await networkManager.request(endpoint: Endpoint.matchStats(game))
         try? await statsStorage.async.setObject(stats, forKey: "stats_\(game.id)")
         
         return stats
+    }
+    
+    
+    func getMatchPBP(_ game: Game) async throws -> PBPEvents {
+        guard game.played else { throw HockeyAPIError.gameNotPlayed }
+
+        let pbp: [AnyPBPEvent] = try await networkManager.request(endpoint: LiveEndpoint.playByPlay(game))
+        return PBPEvents(events: pbp.map({ $0.event }).sorted(by: { $0.realWorldTime < $1.realWorldTime}))
     }
 }
 
@@ -128,4 +136,41 @@ fileprivate struct LatestGameResponse: Codable, GameTransformable {
     
     var homeTeam: Team
     var awayTeam: Team
+}
+
+fileprivate struct AnyPBPEvent: Decodable {
+    let event: PBPEventProtocol
+    
+    enum CodingKeys: CodingKey {
+        case type
+    }
+    
+    init(from decoder: Decoder) throws {
+        self.event = try EventFactory.decode(from: decoder)
+    }
+}
+
+fileprivate class EventFactory {
+    static func decode(from decoder: Decoder) throws -> PBPEventProtocol {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(PBPEventType.self, forKey: .type)
+        switch type {
+        case .goalkeeper:
+            return try GoalkeeperEvent(from: decoder)
+        case .goal:
+            return try GoalEvent(from: decoder)
+        case .penalty:
+            return try PenaltyEvent(from: decoder)
+        case .period:
+            return try PeriodEvent(from: decoder)
+        case .shot:
+            return try ShotEvent(from: decoder)
+        case .timeout:
+            return try TimeoutEvent(from: decoder)
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type
+    }
 }

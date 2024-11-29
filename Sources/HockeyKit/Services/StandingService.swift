@@ -20,7 +20,7 @@ class StandingService: StandingServiceProtocol {
             return standings
         }
         
-        let standings: Standings = try await networkManager.request(endpoint: .standings(series))
+        let standings: Standings = try await networkManager.request(endpoint: Endpoint.standings(series))
         
         try? await standingsStorage.async.setObject(standings, forKey: "standings-list")
         return standings

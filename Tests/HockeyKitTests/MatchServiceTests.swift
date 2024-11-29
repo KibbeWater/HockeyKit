@@ -75,4 +75,38 @@ struct MatchServiceTests {
             return true
         }
     }
+    
+    @Test("Get Match PBP - Request Succeeds")
+    func getMatchPBPRequestSucceeds() async throws {
+        guard let game = try? await matchService.getLatest().filter({$0.played}).first else {
+            Issue.record("Could not get latest matches")
+            return
+        }
+        
+        let res = try await matchService.getMatchPBP(game)
+        #expect(res.events.isEmpty == false)
+    }
+    
+    @Test("Get Match PBP - Unplayed Game")
+    func getMatchPBPUnplayedGame() async throws {
+        guard let game = try? await matchService.getLatest().filter({ !$0.played }).first else {
+            Issue.record("Could not find unplayed game")
+            return
+        }
+        
+        await #expect {
+            let _ = try await matchService.getMatchPBP(game)
+        } throws: { (error) async -> Bool in
+            guard let apiErr = error as? HockeyAPIError else {
+                Issue.record("Error is not an API error")
+                return false
+            }
+            
+            guard apiErr == .gameNotPlayed else {
+                Issue.record("Error is not a game not played error")
+                return false
+            }
+            return true
+        }
+    }
 }

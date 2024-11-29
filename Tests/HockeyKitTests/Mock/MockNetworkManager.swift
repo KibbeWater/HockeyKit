@@ -10,10 +10,10 @@
 
 class MockNetworkManager: NetworkManager {
     var invokedRequest = false
-    var invokedEndpoint: Endpoint?
+    var invokedEndpoint: Endpoints?
     var completionResult: Any?
 
-    override func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
+    override func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
         invokedRequest = true
         invokedEndpoint = endpoint
         if let result = completionResult as? T {
