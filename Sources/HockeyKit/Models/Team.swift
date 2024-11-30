@@ -15,4 +15,10 @@ public struct Team: Codable, Sendable {
     public var name: String
     public var code: String
     public var result: Int
+    
+    public init(name: String, code: String, result: Int) {
+        self.name = name
+        self.code = code
+        self.result = result
+    }
 }
