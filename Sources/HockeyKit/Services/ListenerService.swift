@@ -37,6 +37,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     private var session: URLSession?
     private var task: URLSessionDataTask?
     private var buffer = Data()
+    private var lastReceivedDataTime: Date = .distantPast
     
     public override init() {
         self.maxRetries = 5
@@ -58,13 +59,14 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         
         // Create a URLSession with this class as its delegate
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 300
+        configuration.timeoutIntervalForRequest = TimeInterval.infinity // Prevent request timeout
+        configuration.timeoutIntervalForResource = TimeInterval.infinity // Prevent resource timeout
         
         session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         task = session?.dataTask(with: url)
         task?.resume()
         isConnected = true
+        lastReceivedDataTime = Date()
     }
     
     public func disconnect() {
@@ -100,10 +102,20 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         }
     }
     
+    private func checkKeepAlive() {
+        let timeoutThreshold: TimeInterval = 30 // Adjust as needed
+        if Date().timeIntervalSince(lastReceivedDataTime) > timeoutThreshold {
+            print("Keep-alive timeout. Reconnecting...")
+            disconnect()
+            attemptReconnection()
+        }
+    }
+    
     // MARK: - URLSessionDataDelegate Methods
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         buffer.append(data)
+        lastReceivedDataTime = Date() // Update the last received data timestamp
         while let eventRange = buffer.rangeOfNextSSEEvent() {
             let eventData = buffer.subdata(in: eventRange)
             buffer.removeSubrange(eventRange)
