@@ -25,6 +25,8 @@ public struct Game: Codable, Identifiable, Equatable, Sendable {
     public var overtime: Bool
     public var shootout: Bool
     
+    public var venue: String
+    
     public var homeTeam: Team
     public var awayTeam: Team
     
@@ -42,6 +44,7 @@ public struct Game: Codable, Identifiable, Equatable, Sendable {
         played: Bool,
         overtime: Bool,
         shootout: Bool,
+        venue: String,
         homeTeam: Team,
         awayTeam: Team
     ) {
@@ -50,6 +53,7 @@ public struct Game: Codable, Identifiable, Equatable, Sendable {
         self.played = played
         self.overtime = overtime
         self.shootout = shootout
+        self.venue = venue
         self.homeTeam = homeTeam
         self.awayTeam = awayTeam
     }

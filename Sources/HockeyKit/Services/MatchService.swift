@@ -71,6 +71,7 @@ fileprivate struct ScheduleResponse: Codable {
                 played: state == "post-game",
                 overtime: overtime,
                 shootout: shootout,
+                venue: venueInfo.name,
                 homeTeam: Team(
                     name: homeTeamInfo.names.long,
                     code: homeTeamInfo.code,
@@ -92,6 +93,8 @@ fileprivate struct ScheduleResponse: Codable {
         var overtime: Bool
         var shootout: Bool
         
+        var venueInfo: VenueInfo
+        
         var homeTeamInfo: TeamResponse
         var awayTeamInfo: TeamResponse
         
@@ -111,6 +114,10 @@ fileprivate struct ScheduleResponse: Codable {
                 var long: String
             }
         }
+        
+        struct VenueInfo: Codable {
+            var name: String
+        }
     }
 }
 
@@ -122,6 +129,7 @@ fileprivate struct LatestGameResponse: Codable, GameTransformable {
             played: played,
             overtime: overtime,
             shootout: shootout,
+            venue: venue,
             homeTeam: homeTeam,
             awayTeam: awayTeam
         )
@@ -133,6 +141,8 @@ fileprivate struct LatestGameResponse: Codable, GameTransformable {
     var played: Bool
     var overtime: Bool
     var shootout: Bool
+    
+    var venue: String
     
     var homeTeam: Team
     var awayTeam: Team
