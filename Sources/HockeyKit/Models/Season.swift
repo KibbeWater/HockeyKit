@@ -9,8 +9,8 @@ import Foundation
 
 import Foundation
 
-public struct Season: Codable {
-    public struct Name: Codable {
+public struct Season: Codable, Sendable {
+    public struct Name: Codable, Sendable {
         let language: String
         let translation: String
     }

@@ -28,6 +28,10 @@ public struct Game: Codable, Identifiable, Sendable {
     public var homeTeam: Team
     public var awayTeam: Team
     
+    public func isLive() -> Bool {
+        return !self.played && self.date < Date.now;
+    }
+    
     public init(
         id: String,
         date: Date,

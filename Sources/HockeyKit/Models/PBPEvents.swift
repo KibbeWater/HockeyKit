@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PBPEvents {
+public struct PBPEvents: Sendable {
     public let events: [PBPEventProtocol]
     
     public func getEvents<T: PBPEventProtocol>(ofType type: PBPEventType) -> [T] {
@@ -15,7 +15,7 @@ public struct PBPEvents {
     }
 }
 
-public protocol PBPEventProtocol: Codable {
+public protocol PBPEventProtocol: Codable, Sendable {
     var gameId: Int { get }
     var gameSourceId: String { get }
     var gameUuid: String { get }

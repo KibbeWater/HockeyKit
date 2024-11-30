@@ -6,7 +6,7 @@
 //
 
 
-public enum Nationality: Codable {
+public enum Nationality: Codable, Sendable {
     case sweden
     case norway
     case finland

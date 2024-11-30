@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct GameData: Codable {
+public struct GameData: Codable, Sendable {
     public var gameOverview: GameOverview
     
-    public struct GameOverview: Codable, Equatable {
+    public struct GameOverview: Codable, Equatable, Sendable {
         public var gameId: Int?
         public var homeTeam: TeamData
         public var awayTeam: TeamData
@@ -20,7 +20,7 @@ public struct GameData: Codable {
         public var gameUuid: String
         public var time: GameTime
         
-        public enum GameState: String, Codable {
+        public enum GameState: String, Codable, Sendable {
             case starting = "NotStarted"
             case ongoing = "Ongoing"
             case onbreak = "PeriodBreak"
@@ -28,7 +28,7 @@ public struct GameData: Codable {
             case ended = "GameEnded"
         }
         
-        public struct TeamData: Codable, Equatable {
+        public struct TeamData: Codable, Equatable, Sendable {
             public var gameId: Int
             public var place: PlaceType
             public var score: Int
@@ -37,13 +37,13 @@ public struct GameData: Codable {
             public var teamCode: String
             public var gameUuid: String
             
-            public enum PlaceType: String, Codable {
+            public enum PlaceType: String, Codable, Sendable {
                 case home = "home"
                 case away = "away"
             }
         }
         
-        public struct GameTime: Codable, Equatable {
+        public struct GameTime: Codable, Equatable, Sendable {
             public var period: Int
             public var periodTime: String
             public var periodEnd: Date?

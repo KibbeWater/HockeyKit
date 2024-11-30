@@ -6,19 +6,19 @@
 //
 
 
-public struct TeamLineup: Codable {
+public struct TeamLineup: Codable, Sendable {
     public let position: String
     public let positionCode: PositionCode
     public let players: [LineupPlayer]
     
-    public enum PositionCode: String, Codable {
+    public enum PositionCode: String, Codable, Sendable {
         case goalkeeper = "GK"
         case defense = "D"
         case forward = "F"
     }
 }
 
-public struct LineupPlayer: Codable {
+public struct LineupPlayer: Codable, Sendable {
     public let uuid: String
     public let playerType: PlayerType
     public let firstName: String
@@ -70,17 +70,12 @@ public struct LineupPlayer: Codable {
         self.jerseyNumber = strJersey.map(Int.init) ?? intJersey
     }
     
-    public enum PlayerType: String, Codable {
+    public enum PlayerType: String, Codable, Sendable {
         case athlete = "athlete"
     }
     
-    public struct PlayerPortrait: Codable {
+    public struct PlayerPortrait: Codable, Sendable {
         public let url: String
         public let urlImgOriginalProportion: String
     }
-}
-
-public struct PlayerPortrait: Codable {
-    public let url: String
-    public let urlImgOriginalProportion: String
 }

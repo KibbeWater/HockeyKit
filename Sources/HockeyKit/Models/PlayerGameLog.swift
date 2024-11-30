@@ -5,7 +5,7 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
-public struct PlayerGameLog: Codable, Hashable {
+public struct PlayerGameLog: Codable, Hashable, Sendable {
     public let season: Int
     public let gameType: PlayerGameType
     public let info: PlayerGameStatInfo
@@ -36,13 +36,13 @@ public struct PlayerGameLog: Codable, Hashable {
         self.gameType = (try? container.decode(PlayerGameType.self, forKey: .gameType)) ?? .unknown
     }
     
-    public enum PlayerGameType: String, Codable {
+    public enum PlayerGameType: String, Codable, Sendable {
         case regular = "Elitserien"
         case finals = "SMSlutspel"
         case unknown
     }
 
-    public struct PlayerGameStatInfo: Codable, Hashable {
+    public struct PlayerGameStatInfo: Codable, Hashable, Sendable {
         public let teamId: String
     }
 }

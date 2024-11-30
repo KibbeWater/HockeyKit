@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Standings: Codable, Equatable {
+public struct Standings: Codable, Equatable, Sendable {
     public static func == (lhs: Standings, rhs: Standings) -> Bool {
         return lhs.uuid == rhs.uuid
     }
@@ -16,25 +16,25 @@ public struct Standings: Codable, Equatable {
     public var groupings: [StandingGroup]
     public var leagueStandings: [TeamStanding]
     
-    public struct StandingGroup: Codable {
+    public struct StandingGroup: Codable, Sendable {
         public var Description: String
         public var First: Int
         public var Last: Int
     }
     
-    public struct TeamStanding: Codable {
+    public struct TeamStanding: Codable, Sendable {
         public var GP: Int
         public var Diff: Int
         public var Points: Int
         public var Rank: Int
         public var info: TeamStandingInfo
         
-        public struct TeamStandingInfo: Codable {
+        public struct TeamStandingInfo: Codable, Sendable {
             public var code: String?
             public var id: String
             public var teamInfo: TeamInfo
             
-            public struct TeamInfo: Codable {
+            public struct TeamInfo: Codable, Sendable {
                 public var clubPageLink: String
                 public var siteTeamDisplayCode: String
                 public var siteTeamDisplayName: String
@@ -43,7 +43,7 @@ public struct Standings: Codable, Equatable {
                 public var teamOwnerInstanceId: String
                 public var teamUuid: String
                 
-                public struct TeamNames: Codable {
+                public struct TeamNames: Codable, Sendable {
                     public var code: String
                     public var codeSite: String?
                     public var full: String

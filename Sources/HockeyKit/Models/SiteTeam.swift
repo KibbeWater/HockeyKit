@@ -8,7 +8,7 @@
 import Foundation
 
 
-public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransformable {
+public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, TeamTransformable {
     func toTeam() -> Team {
         Team(
             name: name,
@@ -82,7 +82,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransfor
         )
     }
     
-    public struct TeamSettingsAPIResponse: Codable {
+    public struct TeamSettingsAPIResponse: Codable, Sendable {
         public let instanceId: String
         public let name: String
         public let isLeagueSite: Bool
@@ -91,7 +91,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransfor
         public let teamsInSite: [SiteTeam]
     }
 
-    public struct LocalizedTeamNames: Codable, Hashable {
+    public struct LocalizedTeamNames: Codable, Hashable, Sendable {
         public let code: String
         public let short: String?
         public let long: String?
@@ -102,7 +102,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransfor
         public let fullSite: String?
     }
     
-    public struct SiteTeamInfo: Codable, Hashable {
+    public struct SiteTeamInfo: Codable, Hashable, Sendable {
         public let founded: Int?
         public let golds: Int?
         public let goldYears: [Int]?
@@ -152,7 +152,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, TeamTransfor
     }
 }
 
-func parseGolds(_ str: String) -> (Int?, [Int]?)? {
+private func parseGolds(_ str: String) -> (Int?, [Int]?)? {
     let pattern = #"(\d+)\*?\s*\(([\d,\s]+)\)"#
     let regex = try? NSRegularExpression(pattern: pattern)
     let range = NSRange(str.startIndex..<str.endIndex, in: str)

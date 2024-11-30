@@ -5,7 +5,7 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
-public class Player: Codable, Equatable {
+public struct Player: Codable, Equatable, Sendable {
     public let uuid: String
     public let age: PlayerAttribute
     public let birthDate: String
@@ -29,19 +29,19 @@ public class Player: Codable, Equatable {
         lhs.uuid == rhs.uuid
     }
     
-    public struct PlayerTeam: Codable {
+    public struct PlayerTeam: Codable, Sendable {
         public let name: String
         public let code: String
     }
 
-    public enum PlayerStatisticKey: String, Codable {
+    public enum PlayerStatisticKey: String, Codable, Sendable {
         case matches = "GPI"
         case saves = "SVS"
         case savesPercent = "SVSPerc"
         case goalsPerHour = "GAA"
     }
 
-    public struct PlayerAttribute: Codable {
+    public struct PlayerAttribute: Codable, Sendable {
         let value: Float
         let format: String?
         let field: String?
