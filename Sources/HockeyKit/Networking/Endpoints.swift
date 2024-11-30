@@ -78,3 +78,15 @@ enum LiveEndpoint: Endpoints {
         }
     }
 }
+
+enum BroadcasterEndpoint: Endpoints {
+    static let baseURL: URL = URL(string: "https://game-broadcaster.s8y.se")!
+    
+    case live
+    
+    var url: URL {
+        switch self {
+        case .live: return Self.baseURL.appendingPathComponent("/live/game")
+        }
+    }
+}
