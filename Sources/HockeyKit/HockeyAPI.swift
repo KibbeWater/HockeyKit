@@ -8,12 +8,12 @@
 import Foundation
 
 public class HockeyAPI: ObservableObject {
-    let season: SeasonServiceProtocol
-    let match: MatchServiceProtocol
-    let team: TeamServiceProtocol
-    let series: SeriesServiceProtocol
-    let standings: StandingServiceProtocol
-    let listener: ListenerServiceProtocol
+    public let season: SeasonServiceProtocol
+    public let match: MatchServiceProtocol
+    public let team: TeamServiceProtocol
+    public let series: SeriesServiceProtocol
+    public let standings: StandingServiceProtocol
+    public let listener: ListenerServiceProtocol
 
     public init() {
         let networkManager = NetworkManager()

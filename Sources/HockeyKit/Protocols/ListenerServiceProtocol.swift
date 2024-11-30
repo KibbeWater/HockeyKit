@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol ListenerServiceProtocol {
+public protocol ListenerServiceProtocol {
     func connect()
     func disconnect()
     func subscribe() -> AnyPublisher<GameData, Never>

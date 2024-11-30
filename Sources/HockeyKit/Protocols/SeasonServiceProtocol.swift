@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol SeasonServiceProtocol {
+public protocol SeasonServiceProtocol {
     func getSeasons() async throws -> [Season]
     func getCurrent() async throws -> Season
 }

@@ -5,6 +5,6 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
-protocol SeriesServiceProtocol {
+public protocol SeriesServiceProtocol {
     func getCurrentSeries() async throws -> Series?
 }
