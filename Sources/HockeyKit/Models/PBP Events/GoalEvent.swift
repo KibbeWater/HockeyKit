@@ -30,7 +30,7 @@ public struct GoalEvent: PBPEventProtocol {
     public let locationX: Int
     public let locationY: Int
     
-    public struct AssistDictionary: Codable {
+    public struct AssistDictionary: Codable, Sendable {
         public let first: PBPlayer?
         public let second: PBPlayer?
     }

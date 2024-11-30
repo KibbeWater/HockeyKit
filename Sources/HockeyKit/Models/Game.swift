@@ -17,7 +17,7 @@ public enum GameType: String {
     case finals = "qQ9-7debq38kX"
 }
 
-public struct Game: Codable, Identifiable, Sendable {
+public struct Game: Codable, Identifiable, Equatable, Sendable {
     public var id: String
     
     public var date: Date
@@ -32,6 +32,10 @@ public struct Game: Codable, Identifiable, Sendable {
         return !self.played && self.date < Date.now;
     }
     
+    public static func == (lhs: Game, rhs: Game) -> Bool {
+        lhs.id == rhs.id
+    }
+
     public init(
         id: String,
         date: Date,

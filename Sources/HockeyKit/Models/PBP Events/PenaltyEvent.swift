@@ -78,7 +78,7 @@ public struct PenaltyEvent: PBPEventProtocol {
         case variant
     }
 
-    public struct PenaltyVariant: Codable {
+    public struct PenaltyVariant: Codable, Sendable {
         public let shortName: String?
         public let minorTime: String?
         public let doubleMinorTime: String?

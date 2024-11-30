@@ -24,7 +24,7 @@ public protocol PBPEventProtocol: Codable, Sendable {
     var type: PBPEventType { get }
 }
 
-public enum PBPEventType: String, Codable {
+public enum PBPEventType: String, Codable, Sendable {
     case goal = "goal"
     case goalkeeper = "goalkeeper"
     case penalty = "penalty"
