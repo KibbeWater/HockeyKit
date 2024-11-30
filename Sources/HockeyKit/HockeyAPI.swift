@@ -13,6 +13,7 @@ public class HockeyAPI: ObservableObject {
     let team: TeamServiceProtocol
     let series: SeriesServiceProtocol
     let standings: StandingServiceProtocol
+    let listener: ListenerServiceProtocol
 
     public init() {
         let networkManager = NetworkManager()
@@ -22,5 +23,6 @@ public class HockeyAPI: ObservableObject {
         self.team = TeamService(networkManager: networkManager)
         self.series = SeriesService(networkManager: networkManager)
         self.standings = StandingService(networkManager: networkManager)
+        self.listener = ListenerService()
     }
 }
