@@ -51,6 +51,18 @@ class MatchService: MatchServiceProtocol {
         return stats
     }
     
+    func getMatchExtra(_ game: Game) async throws -> GameExtra {
+        let extraStorage = cache.transformCodable(ofType: GameExtra.self)
+        
+        if let extra = try? await extraStorage.async.object(forKey: "extra_\(game.id)") {
+            return extra
+        }
+        
+        let extra: GameExtra = try await networkManager.request(endpoint: Endpoint.matchExtra(game))
+        try? await extraStorage.async.setObject(extra, forKey: "extra_\(extra.gameInfo.gameUuid)")
+        
+        return extra
+    }
     
     func getMatchPBP(_ game: Game) async throws -> PBPEvents {
         guard game.played else { throw HockeyAPIError.gameNotPlayed }

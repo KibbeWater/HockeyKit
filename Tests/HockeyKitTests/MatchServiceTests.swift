@@ -76,6 +76,26 @@ struct MatchServiceTests {
         }
     }
     
+    @Test("Get Match Extra - Request Succeeds")
+    func getMatchExtraRequestSucceeds() async throws {
+        guard let game = try? await matchService.getLatest().filter({$0.played}).first else {
+            Issue.record("Could not get latest matches")
+            return
+        }
+        
+        let _ = try await matchService.getMatchExtra(game)
+    }
+    
+    @Test("Get Match Extra - Unplayed Game")
+    func getMatchExtraUnplayedGame() async throws {
+        guard let game = try? await matchService.getLatest().filter({ !$0.played }).first else {
+            Issue.record("Could not find unplayed game")
+            return
+        }
+        
+        let _ = try await matchService.getMatchExtra(game)
+    }
+    
     @Test("Get Match PBP - Request Succeeds")
     func getMatchPBPRequestSucceeds() async throws {
         guard let game = try? await matchService.getLatest().filter({$0.played}).first else {

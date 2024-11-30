@@ -12,5 +12,6 @@ public protocol MatchServiceProtocol {
     func getSeasonSchedule(_ season: Season) async throws -> [Game]
     
     func getMatchStats(_ game: Game) async throws -> GameStats
+    func getMatchExtra(_ game: Game) async throws -> GameExtra
     func getMatchPBP(_ game: Game) async throws -> PBPEvents
 }
