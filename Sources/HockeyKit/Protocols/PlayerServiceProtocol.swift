@@ -7,5 +7,5 @@
 
 public protocol PlayerServiceProtocol {
     func getPlayer(withId: String) async throws -> Player
-    func getGameLog(_ player: Player) async throws -> [PlayerGameLog]
+    func getGameLog(_ player: Player) async throws -> PlayerGameLog
 }
