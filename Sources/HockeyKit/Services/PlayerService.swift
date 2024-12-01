@@ -26,20 +26,17 @@ class PlayerService: PlayerServiceProtocol {
         return player
     }
     
-    func getGameLog(_ player: Player) async throws -> PlayerGameLog {
+    func getGameLog(_ player: Player) async throws -> [PlayerGameLog] {
         let logStorage = cache.transformCodable(ofType: [LogResponse].self)
         
-        if let logs = try? await logStorage.async.object(forKey: "log_\(player.uuid)") {
-            guard let log = logs.flatMap({ $0.stats }).first else { throw HockeyAPIError.notFound }
-            return log
+        if let log = try? await logStorage.async.object(forKey: "log_\(player.uuid)") {
+            return log.flatMap({ $0.stats })
         }
         
         let logs: [LogResponse] = try await networkManager.request(endpoint: Endpoint.playerGameLog(player))
         try? await logStorage.async.setObject(logs, forKey: "log_\(player.uuid)")
         
-        guard let log = logs.flatMap({ $0.stats }).first else { throw HockeyAPIError.notFound }
-        
-        return log
+        return logs.flatMap({ $0.stats })
     }
 }
 
