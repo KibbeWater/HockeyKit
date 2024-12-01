@@ -5,6 +5,13 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
+public enum GameStatKey: String, Codable, Sendable {
+    case goals = "G"
+    case shotsOnGoal = "SOG"
+    case saves = "Saves"
+    case wonFaceoffs = "FOW"
+}
+
 public struct GameStats: Codable, Sendable {
     public var home: TeamStats
     public var away: TeamStats
@@ -28,13 +35,6 @@ public struct GameStats: Codable, Sendable {
                 case period
                 case stats = "parsedTotalStatistics"
             }
-        }
-        
-        public enum GameStatKey: String, Codable, Sendable {
-            case goals = "G"
-            case shotsOnGoal = "SOG"
-            case saves = "Saves"
-            case wonFaceoffs = "FOW"
         }
 
         public struct GameStatKV: Codable, Sendable {
