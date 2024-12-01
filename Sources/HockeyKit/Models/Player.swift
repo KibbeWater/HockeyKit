@@ -5,6 +5,13 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
+public enum PlayerStatisticKey: String, Codable, Sendable {
+    case matches = "GPI"
+    case saves = "SVS"
+    case savesPercent = "SVSPerc"
+    case goalsPerHour = "GAA"
+}
+
 public struct Player: Codable, Equatable, Sendable {
     public let uuid: String
     public let age: PlayerAttribute
@@ -32,13 +39,6 @@ public struct Player: Codable, Equatable, Sendable {
     public struct PlayerTeam: Codable, Sendable {
         public let name: String
         public let code: String
-    }
-
-    public enum PlayerStatisticKey: String, Codable, Sendable {
-        case matches = "GPI"
-        case saves = "SVS"
-        case savesPercent = "SVSPerc"
-        case goalsPerHour = "GAA"
     }
 
     public struct PlayerAttribute: Codable, Sendable {
