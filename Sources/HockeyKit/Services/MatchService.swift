@@ -16,6 +16,10 @@ class MatchService: MatchServiceProtocol {
         self.networkManager = networkManager
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
     func getLatest() async throws -> [Game] {
         let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: Endpoint.matchesLatest)
         return req.flatMap { $1 }.map({ $0.toGame() })

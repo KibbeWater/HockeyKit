@@ -18,6 +18,10 @@ class SeriesService: SeriesServiceProtocol {
         self.networkManager = networkManager
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
     private func getSiteSettings() async throws -> SeasonAPIResponse {
         let seasonStorage = cache.transformCodable(ofType: SeasonAPIResponse.self)
         

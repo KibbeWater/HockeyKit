@@ -22,6 +22,10 @@ class TeamService: TeamServiceProtocol {
         self.networkManager = networkManager
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
     func getTeams() async throws -> [SiteTeam] {
         let teamStorage = cache.transformCodable(ofType: [SiteTeam].self)
         

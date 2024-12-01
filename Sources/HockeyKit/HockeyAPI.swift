@@ -27,4 +27,15 @@ public class HockeyAPI: ObservableObject {
         self.player = PlayerService(networkManager: networkManager)
         self.listener = ListenerService()
     }
+    
+    public func resetCache() {
+        let networkManager = NetworkManager()
+        
+        SeasonService(networkManager: networkManager).resetCache()
+        MatchService(networkManager: networkManager).resetCache()
+        TeamService(networkManager: networkManager).resetCache()
+        SeriesService(networkManager: networkManager).resetCache()
+        StandingService(networkManager: networkManager).resetCache()
+        PlayerService(networkManager: networkManager).resetCache()
+    }
 }

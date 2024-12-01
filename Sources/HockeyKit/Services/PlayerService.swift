@@ -13,6 +13,10 @@ class PlayerService: PlayerServiceProtocol {
         self.networkManager = networkManager
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
     func getPlayer(withId id: String) async throws -> Player {
         let playerStorage = cache.transformCodable(ofType: Player.self)
         

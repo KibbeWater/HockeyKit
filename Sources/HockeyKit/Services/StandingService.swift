@@ -13,6 +13,10 @@ class StandingService: StandingServiceProtocol {
         self.networkManager = networkManager
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
     func getStandings(series: Series) async throws -> Standings {
         let standingsStorage = cache.transformCodable(ofType: Standings.self)
         
