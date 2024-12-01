@@ -17,7 +17,7 @@ enum Endpoint: Endpoints {
     static let baseURL = URL(string: "https://shl.se/api")!
 
     case matchesLatest
-    case matchesSchedule(Season, GameType = GameType.regular, Team? = nil)
+    case matchesSchedule(Season, GameType = GameType.regular, [String]? = nil)
     case matchStats(Game)
     case matchExtra(Game)
     case match(String)
@@ -35,7 +35,7 @@ enum Endpoint: Endpoints {
     var url: URL {
         switch self {
         case .matchesLatest: return Self.baseURL.appendingPathComponent("/gameday/gameheader")
-        case .matchesSchedule(let season, let gameType, let team):
+        case .matchesSchedule(let season, let gameType, let teams):
           return Self.baseURL.appendingPathComponent(
             "/sports/game-info"
           ).appending(queryItems: [
@@ -44,8 +44,8 @@ enum Endpoint: Endpoints {
             .init(name: "gameTypeUuid", value: gameType.rawValue),
             .init(name: "gamePlace", value: "all"),
             .init(name: "played", value: "all"),
-          ]).appending(queryItems: team == nil ? [] : [
-            .init(name: "teams[]", value: team!.name)
+          ]).appending(queryItems: teams == nil ? [] : [
+            .init(name: "teams[]", value: teams!.joined(separator: ",") )
           ])
         case .matchStats(let game): return Self.baseURL.appendingPathComponent("/gameday/team-stats/\(game.id)")
         case .matchExtra(let game): return Self.baseURL.appendingPathComponent("/sports/game-info/\(game.id)")

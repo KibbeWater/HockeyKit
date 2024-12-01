@@ -18,6 +18,7 @@ struct MatchServiceTests {
     let matchService: MatchService
     
     let mockPlayerId = "qQ9-8fcc4epep" // Joel Lassinanti
+    let mockTeamId = "1a71-1a71gTHKh" // Luleå Hockey
     
     init() {
         self.mockMatchService = MatchService(networkManager: mockNetworkManager)
@@ -41,6 +42,29 @@ struct MatchServiceTests {
         
         let request = try await matchService.getSeasonSchedule(season)
         #expect(request.isEmpty == false)
+    }
+    
+    @Test("Get Season Schedule - Team Filtering")
+    func getSeasonScheduleTeamFiltering() async throws {
+        let seasonService = SeasonService(networkManager: networkManager)
+        let teamService = TeamService(networkManager: networkManager)
+        
+        guard let season = try? await seasonService.getCurrent() else {
+            Issue.record("Could not get current season")
+            return
+        }
+        
+        guard let team = try? await teamService.getTeam(withId: mockTeamId) else {
+            Issue.record("Could not get team \(mockTeamId)")
+            return
+        }
+        
+        let request = try await matchService.getSeasonSchedule(season, withTeams: [mockTeamId])
+        if request.isEmpty {
+            Issue.record("No matches found for team \(mockTeamId)")
+        }
+        
+        #expect(request.allSatisfy({ $0.homeTeam.code == team.names.code || $0.awayTeam.code == team.names.code }))
     }
     
     @Test("Get Match Stats - Request Succeeds")
