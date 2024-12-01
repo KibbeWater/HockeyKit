@@ -19,14 +19,28 @@ enum DateUtils {
         ]
         return formatter
     }()
+    
+    nonisolated(unsafe) private static let stockholmDateFormatterFull: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime, // Full date and time with timezone
+            // .withFractionalSeconds // Include fractional seconds if available
+        ]
+        return formatter
+    }()
 
     /// Parses an ISO8601 date string into a `Date` object in the `Europe/Stockholm` timezone.
     ///
     /// - Parameter isoDateString: The ISO8601 date string to parse.
     /// - Returns: A `Date` object if parsing succeeds, or `nil` otherwise.
     static func parseISODate(_ isoDateString: String) -> Date? {
-        let date = stockholmDateFormatter.date(from: isoDateString)
-        return date?.addingTimeInterval(TimeInterval(timeZone.secondsFromGMT()))
+        if isoDateString.contains("+") {
+            let date = stockholmDateFormatterFull.date(from: isoDateString)
+            return date
+        } else {
+            let date = stockholmDateFormatter.date(from: isoDateString)
+            return date?.addingTimeInterval(TimeInterval(timeZone.secondsFromGMT()))
+        }
     }
 
     /// Formats a `Date` object into an ISO8601 string in the `Europe/Stockholm` timezone.

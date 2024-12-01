@@ -67,6 +67,19 @@ struct MatchServiceTests {
         #expect(request.allSatisfy({ $0.homeTeam.code == team.names.code || $0.awayTeam.code == team.names.code }))
     }
     
+    @Test("Get Season Schedule - Date Parsing")
+    func getSeasonScheduleDateParsing() async throws {
+        let seasonService = SeasonService(networkManager: networkManager)
+        
+        guard let season = try? await seasonService.getCurrent() else {
+            Issue.record("Could not get current season")
+            return
+        }
+        
+        let request = try await matchService.getSeasonSchedule(season)
+        #expect(request.allSatisfy({ $0.date != Date.distantPast }))
+    }
+    
     @Test("Get Match Stats - Request Succeeds")
     func getMatchStatsRequestSucceeds() async throws {
         guard let game = try? await matchService.getLatest().filter({$0.played}).first else {
