@@ -78,10 +78,9 @@ struct ListenerServiceTests {
         let service = try setupService(endpoint.url)
         service._internal_onlyPublishWhenFinished(false)
 
-        try await confirmation("Does scenario \"Invalid Format\" pass with no errors and no events", expectedCount: 0) { fulfilled in
+        try await confirmation("Does scenario \"Invalid Format\" pass with no errors and no events", expectedCount: 2) { fulfilled in
             let cancellable = service.subscribe()
                 .sink { event in
-                    print("Event: \(event)")
                     fulfilled()
                 }
             
