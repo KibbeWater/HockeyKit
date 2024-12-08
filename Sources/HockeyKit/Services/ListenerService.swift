@@ -10,7 +10,7 @@ import Foundation
 
 class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate, @unchecked Sendable {
     /// The URL of the EventStream endpoint
-    private let url: URL = BroadcasterEndpoint.live.url
+    private var url: URL = BroadcasterEndpoint.live.url
     
     /// A subject to multicast events to multiple subscribers
     private let eventSubject = PassthroughSubject<GameData, Never>()
@@ -39,11 +39,19 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     private var buffer = Data()
     private var lastReceivedDataTime: Date = .distantPast
     
+    /// Internal properties for testing
+    private var _test_shouldReconnectOn200: Bool = true
+    private var _test_onlyPublishWhenFinished: Bool = false
+    
     public override init() {
         self.maxRetries = 5
         self.baseDelay = 1.0
         self.maxDelay = 60.0
         super.init()
+    }
+    
+    deinit {
+        disconnect()
     }
     
     public func connect() {
@@ -111,6 +119,20 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         }
     }
     
+    // MARK: - Test functions for internal testing
+    
+    func _internal_testShouldReconnectOn200(_ shouldReconnect: Bool) {
+        self._test_shouldReconnectOn200 = shouldReconnect
+    }
+    
+    func _internal_testSetURL(_ url: URL) {
+        self.url = url
+    }
+    
+    func _internal_onlyPublishWhenFinished(_ onlyPublishWhenFinished: Bool) {
+        self._test_onlyPublishWhenFinished = onlyPublishWhenFinished
+    }
+    
     // MARK: - URLSessionDataDelegate Methods
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
@@ -122,14 +144,18 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
             
             guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
             if let jsonData = extractDataField(from: eventString) {
-                do {
-                    let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
-                    eventSubject.send(gameData)
-                    currentRetryCount = 0
-                    currentDelay = baseDelay
-                } catch {
-                    print("Failed to decode GameData: \(error)")
-                    errorSubject.send(error)
+                DispatchQueue.main.async {
+                    do {
+                        let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
+                        if !self._test_onlyPublishWhenFinished {
+                            self.eventSubject.send(gameData)
+                        }
+                        self.currentRetryCount = 0
+                        self.currentDelay = self.baseDelay
+                    } catch {
+                        print("Failed to decode GameData: \(error)")
+                        self.errorSubject.send(error)
+                    }
                 }
             }
         }
@@ -142,6 +168,15 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
             errorSubject.send(error)
         } else {
             print("Stream finished")
+            
+            if _test_onlyPublishWhenFinished {
+                let team: GameData.GameOverview.TeamData = .init(gameId: 1, place: .away, score: 123, teamId: "123", teamName: "123", teamCode: "123", gameUuid: "123")
+                eventSubject.send(GameData.init(gameOverview: .init(homeTeam: team, awayTeam: team, homeGoals: 1, awayGoals: 2, state: .ongoing, gameUuid: "123", time: .init(period: 2, periodTime: "12:30", periodEnd: nil))))
+            }
+            
+            if !_test_shouldReconnectOn200 {
+               return
+            }
         }
         attemptReconnection()
     }
