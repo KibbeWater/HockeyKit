@@ -1,10 +1,3 @@
-//
-//  ListenerService.swift
-//
-//
-//  Created by KibbeWater on 12/30/23.
-//
-
 import Foundation
 @preconcurrency import Combine
 
@@ -117,20 +110,25 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         buffer.append(data)
         lastReceivedDataTime = Date() // Update the last received data timestamp
         while let eventRange = buffer.rangeOfNextSSEEvent() {
-            let eventData = buffer.subdata(in: eventRange)
-            buffer.removeSubrange(eventRange)
-            
-            guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
-            if let jsonData = extractDataField(from: eventString) {
-                do {
-                    let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
-                    eventSubject.send(gameData)
-                    currentRetryCount = 0
-                    currentDelay = baseDelay
-                } catch {
-                    print("Failed to decode GameData: \(error)")
-                    errorSubject.send(error)
+            do {
+                let eventData = try buffer.subdata(in: eventRange)
+                buffer.removeSubrange(eventRange)
+                
+                guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
+                if let jsonData = extractDataField(from: eventString) {
+                    do {
+                        let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
+                        eventSubject.send(gameData)
+                        currentRetryCount = 0
+                        currentDelay = baseDelay
+                    } catch {
+                        print("Failed to decode GameData: \(error)")
+                        errorSubject.send(error)
+                    }
                 }
+            } catch {
+                print("Error handling event data: \(error)")
+                errorSubject.send(error)
             }
         }
     }
@@ -168,4 +166,3 @@ private func extractDataField(from eventString: String) -> Data? {
     }
     return nil
 }
-
