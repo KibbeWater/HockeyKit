@@ -8,6 +8,30 @@
 import Foundation
 @preconcurrency import Combine
 
+actor BufferManager {
+    private var buffer = Data()
+    
+    func append(_ data: Data) {
+        buffer.append(data)
+    }
+    
+    func removeAll() {
+        buffer.removeAll()
+    }
+    
+    func removeSubrange(_ range: Range<Data.Index>) {
+        buffer.removeSubrange(range)
+    }
+    
+    func rangeOfNextSSEEvent() -> Range<Data.Index>? {
+        buffer.rangeOfNextSSEEvent()
+    }
+    
+    func subdata(in range: Range<Data.Index>) -> Data {
+        buffer.subdata(in: range)
+    }
+}
+
 class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate, @unchecked Sendable {
     private let networkManager: NetworkManager
     
@@ -26,6 +50,9 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     /// Indicates whether the stream is currently active
     @Published private(set) public var isConnected = false
     
+    /// Buffer manager for thread-safe access to the data buffer
+    private let bufferManager = BufferManager()
+    
     /// Retain information about latest game data for quick access on new initial connections
     private var latestGameData: Dictionary<String, GameData> = [:]
     
@@ -41,7 +68,6 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     /// Internal properties for URLSession and task management
     private var session: URLSession?
     private var task: URLSessionDataTask?
-    private var buffer = Data()
     private var lastReceivedDataTime: Date = .distantPast
     
     /// Internal properties for testing
@@ -52,7 +78,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         self.maxRetries = 5
         self.baseDelay = 1.0
         self.maxDelay = 60.0
-        self.networkManager = NetworkManager() // Perhaps we can make this a bit better in the future but for now we don't need to test this
+        self.networkManager = NetworkManager()
         super.init()
     }
     
@@ -61,20 +87,17 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     }
     
     public func connect() {
-        // Reset retry state
         currentRetryCount = 0
         currentDelay = baseDelay
-        
         startEventStreamConnection()
     }
     
     private func startEventStreamConnection() {
         print("Starting connection")
         
-        // Create a URLSession with this class as its delegate
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = TimeInterval.infinity // Prevent request timeout
-        configuration.timeoutIntervalForResource = TimeInterval.infinity // Prevent resource timeout
+        configuration.timeoutIntervalForRequest = TimeInterval.infinity
+        configuration.timeoutIntervalForResource = TimeInterval.infinity
         
         session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         task = session?.dataTask(with: url)
@@ -88,10 +111,12 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         task?.cancel()
         task = nil
         session = nil
-        buffer.removeAll()
+        Task {
+            await bufferManager.removeAll()
+        }
         isConnected = false
         cancellables.removeAll()
-        currentRetryCount = maxRetries // Prevent reconnection
+        currentRetryCount = maxRetries
     }
     
     func getGameData(_ gameId: String) async throws -> GameData? {
@@ -174,25 +199,28 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     // MARK: - URLSessionDataDelegate Methods
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        buffer.append(data)
-        lastReceivedDataTime = Date() // Update the last received data timestamp
-        while let eventRange = buffer.rangeOfNextSSEEvent() {
-            let eventData = buffer.subdata(in: eventRange)
-            buffer.removeSubrange(eventRange)
+        Task {
+            await bufferManager.append(data)
+            lastReceivedDataTime = Date()
             
-            guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
-            if let jsonData = extractDataField(from: eventString) {
-                DispatchQueue.main.async {
-                    do {
-                        let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
-                        if !self._test_onlyPublishWhenFinished {
-                            self.eventSubject.send(gameData)
+            while let eventRange = await bufferManager.rangeOfNextSSEEvent() {
+                let eventData = await bufferManager.subdata(in: eventRange)
+                await bufferManager.removeSubrange(eventRange)
+                
+                guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
+                if let jsonData = extractDataField(from: eventString) {
+                    await MainActor.run {
+                        do {
+                            let gameData = try JSONDecoder().decode(GameData.self, from: jsonData)
+                            if !self._test_onlyPublishWhenFinished {
+                                self.eventSubject.send(gameData)
+                            }
+                            self.currentRetryCount = 0
+                            self.currentDelay = self.baseDelay
+                        } catch {
+                            print("Failed to decode GameData: \(error)")
+                            self.errorSubject.send(error)
                         }
-                        self.currentRetryCount = 0
-                        self.currentDelay = self.baseDelay
-                    } catch {
-                        print("Failed to decode GameData: \(error)")
-                        self.errorSubject.send(error)
                     }
                 }
             }
@@ -213,7 +241,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
             }
             
             if !_test_shouldReconnectOn200 {
-               return
+                return
             }
         }
         attemptReconnection()
@@ -221,8 +249,6 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
 }
 
 private extension Data {
-    /// Finds the range of the next SSE event in the buffer.
-    /// SSE events are separated by double newlines (`\n\n`).
     func rangeOfNextSSEEvent() -> Range<Data.Index>? {
         guard let range = self.range(of: "\n\n".data(using: .utf8)!) else {
             return nil
@@ -241,4 +267,3 @@ private func extractDataField(from eventString: String) -> Data? {
     }
     return nil
 }
-
