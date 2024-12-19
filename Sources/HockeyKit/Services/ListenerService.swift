@@ -9,6 +9,8 @@ import Foundation
 @preconcurrency import Combine
 
 class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate, @unchecked Sendable {
+    private let networkManager: NetworkManager
+    
     /// The URL of the EventStream endpoint
     private var url: URL = BroadcasterEndpoint.live.url
     
@@ -47,6 +49,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         self.maxRetries = 5
         self.baseDelay = 1.0
         self.maxDelay = 60.0
+        self.networkManager = NetworkManager() // Perhaps we can make this a bit better in the future but for now we don't need to test this
         super.init()
     }
     
@@ -54,10 +57,20 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         disconnect()
     }
     
-    public func connect() {
+    public func connect(_ gameId: String? = nil) {
         // Reset retry state
         currentRetryCount = 0
         currentDelay = baseDelay
+        
+        if let gameId {
+            Task { // Get match information to give an initial burst of data
+                if let matchInfo: GameData.GameOverview = try? await networkManager.request(endpoint: Endpoint.match(gameId)) {
+                    self.eventSubject.send(GameData(
+                        gameOverview: matchInfo
+                    ))
+                }
+            }
+        }
         
         startEventStreamConnection()
     }

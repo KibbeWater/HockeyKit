@@ -25,6 +25,11 @@ class MatchService: MatchServiceProtocol {
         return req.flatMap { $1 }.map({ $0.toGame() })
     }
     
+    func getMatch(_ matchId: String) async throws -> GameData {
+        let req: GameData.GameOverview = try await networkManager.request(endpoint: Endpoint.match(matchId))
+        return GameData(gameOverview: req)
+    }
+    
     func getSeasonSchedule(_ season: Season) async throws -> [Game] {
         let scheduleStorage = cache.transformCodable(ofType: [Game].self)
         
