@@ -57,20 +57,10 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         disconnect()
     }
     
-    public func connect(_ gameId: String? = nil) {
+    public func connect() {
         // Reset retry state
         currentRetryCount = 0
         currentDelay = baseDelay
-        
-        if let gameId {
-            Task { // Get match information to give an initial burst of data
-                if let matchInfo: GameData.GameOverview = try? await networkManager.request(endpoint: Endpoint.match(gameId)) {
-                    self.eventSubject.send(GameData(
-                        gameOverview: matchInfo
-                    ))
-                }
-            }
-        }
         
         startEventStreamConnection()
     }
@@ -98,6 +88,20 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         isConnected = false
         cancellables.removeAll()
         currentRetryCount = maxRetries // Prevent reconnection
+    }
+    
+    public func subscribe(_ gameId: String?) -> AnyPublisher<GameData, Never> {
+        if let gameId {
+            Task { // Get match information to give an initial burst of data
+                if let matchInfo: GameData.GameOverview = try? await networkManager.request(endpoint: Endpoint.match(gameId)) {
+                    self.eventSubject.send(GameData(
+                        gameOverview: matchInfo
+                    ))
+                }
+            }
+        }
+        
+        return subscribe()
     }
     
     public func subscribe() -> AnyPublisher<GameData, Never> {

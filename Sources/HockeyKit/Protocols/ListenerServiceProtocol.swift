@@ -9,8 +9,11 @@ import Foundation
 import Combine
 
 public protocol ListenerServiceProtocol {
-    func connect(_ gameId: String?)
+    func connect()
     func disconnect()
+    
+    func subscribe(_ gameId: String?) -> AnyPublisher<GameData, Never>
     func subscribe() -> AnyPublisher<GameData, Never>
+    
     func errorPublisher() -> AnyPublisher<Error, Never>
 }
