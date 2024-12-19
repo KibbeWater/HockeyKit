@@ -95,7 +95,8 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     }
     
     func getGameData(_ gameId: String) async throws -> GameData? {
-        return try await networkManager.request(endpoint: Endpoint.match(gameId))
+        let data: GameData.GameOverview = try await networkManager.request(endpoint: Endpoint.match(gameId))
+        return GameData(gameOverview: data)
     }
     
     func requestCachedData(_ gameId: String) {
