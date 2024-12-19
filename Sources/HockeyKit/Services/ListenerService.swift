@@ -26,6 +26,9 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     /// Indicates whether the stream is currently active
     @Published private(set) public var isConnected = false
     
+    /// Retain information about latest game data for quick access on new initial connections
+    private var latestGameData: Dictionary<String, GameData> = [:]
+    
     /// Reconnection configuration
     private let maxRetries: Int
     private let baseDelay: TimeInterval
@@ -81,6 +84,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     }
     
     public func disconnect() {
+        latestGameData = [:]
         task?.cancel()
         task = nil
         session = nil
@@ -90,17 +94,33 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         currentRetryCount = maxRetries // Prevent reconnection
     }
     
-    public func subscribe(_ gameId: String?) -> AnyPublisher<GameData, Never> {
-        if let gameId {
+    func getGameData(_ gameId: String) async throws -> GameData? {
+        return try await networkManager.request(endpoint: Endpoint.match(gameId))
+    }
+    
+    func requestCachedData(_ gameId: String) {
+        guard let game = latestGameData[gameId] else { return }
+        self.eventSubject.send(game)
+    }
+    
+    public func requestInitialData(_ gameIds: [String]) {
+        gameIds.forEach { gameId in
+            requestCachedData(gameId)
             Task { // Get match information to give an initial burst of data
-                if let matchInfo: GameData.GameOverview = try? await networkManager.request(endpoint: Endpoint.match(gameId)) {
-                    self.eventSubject.send(GameData(
-                        gameOverview: matchInfo
-                    ))
+                if let matchInfo: GameData = try? await getGameData(gameId) {
+                    self.eventSubject.send(matchInfo)
                 }
             }
         }
-        
+    }
+    
+    public func subscribe(_ gameId: String) -> AnyPublisher<GameData, Never> {
+        requestInitialData([gameId])
+        return subscribe()
+    }
+    
+    public func subscribe(_ gameIds: [String]) -> AnyPublisher<GameData, Never> {
+        requestInitialData(gameIds)
         return subscribe()
     }
     
