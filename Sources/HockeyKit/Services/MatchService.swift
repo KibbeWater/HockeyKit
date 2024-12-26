@@ -95,7 +95,7 @@ class MatchService: MatchServiceProtocol {
     }
     
     func getMatchPBP(_ game: Game) async throws -> PBPEvents {
-        guard game.played else { throw HockeyAPIError.gameNotPlayed }
+        guard game.played || game.isLive() else { throw HockeyAPIError.gameNotPlayed }
 
         let pbp: [AnyPBPEvent] = try await networkManager.request(endpoint: LiveEndpoint.playByPlay(game))
         return PBPEvents(events: pbp.map({ $0.event }).sorted(by: { $0.realWorldTime < $1.realWorldTime}))
