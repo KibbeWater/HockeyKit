@@ -19,7 +19,30 @@ actor BufferManager {
         buffer.removeAll()
     }
     
+    // Atomic operation to get and remove the next event
+    func getAndRemoveNextEvent() async -> Data? {
+        guard let eventRange = buffer.rangeOfNextSSEEvent() else {
+            return nil
+        }
+        
+        // Since this is all happening within the actor,
+        // we're guaranteed that no other code can modify the buffer
+        // between these operations
+        let eventData = buffer.subdata(in: eventRange)
+        buffer.removeSubrange(eventRange)
+        return eventData
+    }
+    
+    // Keep these methods for cases where you really need them,
+    // but they should be used carefully
     func removeSubrange(_ range: Range<Data.Index>) {
+        guard range.lowerBound >= 0,
+              range.upperBound <= buffer.count,
+              range.lowerBound <= range.upperBound else {
+            print("Warning: Attempted to remove invalid range \(range) from buffer of size \(buffer.count)")
+            return
+        }
+        
         buffer.removeSubrange(range)
     }
     
@@ -28,7 +51,14 @@ actor BufferManager {
     }
     
     func subdata(in range: Range<Data.Index>) -> Data {
-        buffer.subdata(in: range)
+        guard range.lowerBound >= 0,
+              range.upperBound <= buffer.count,
+              range.lowerBound <= range.upperBound else {
+            print("Warning: Attempted to access invalid range \(range) from buffer of size \(buffer.count)")
+            return Data()
+        }
+        
+        return buffer.subdata(in: range)
     }
 }
 
@@ -203,10 +233,8 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
             await bufferManager.append(data)
             lastReceivedDataTime = Date()
             
-            while let eventRange = await bufferManager.rangeOfNextSSEEvent() {
-                let eventData = await bufferManager.subdata(in: eventRange)
-                await bufferManager.removeSubrange(eventRange)
-                
+            // Use the new atomic operation instead of separate range/subdata/remove calls
+            while let eventData = await bufferManager.getAndRemoveNextEvent() {
                 guard let eventString = String(data: eventData, encoding: .utf8) else { continue }
                 if let jsonData = extractDataField(from: eventString) {
                     await MainActor.run {
