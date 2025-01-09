@@ -160,6 +160,29 @@ fileprivate struct ScheduleResponse: Codable {
         struct VenueInfo: Codable {
             var name: String
         }
+        
+        init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<ScheduleResponse.GameResponse.CodingKeys> = try decoder.container(keyedBy: ScheduleResponse.GameResponse.CodingKeys.self)
+            self.uuid = try container.decode(String.self, forKey: ScheduleResponse.GameResponse.CodingKeys.uuid)
+            self.state = try container.decode(String.self, forKey: ScheduleResponse.GameResponse.CodingKeys.state)
+            self.startDateTime = try container.decode(String.self, forKey: ScheduleResponse.GameResponse.CodingKeys.startDateTime)
+            self.overtime = try container.decode(Bool.self, forKey: .overtime)
+            self.shootout = try container.decode(Bool.self, forKey: .shootout)
+            self.venueInfo = try container.decode(ScheduleResponse.GameResponse.VenueInfo.self, forKey: .venueInfo)
+            self.homeTeamInfo = try container.decode(ScheduleResponse.GameResponse.TeamResponse.self, forKey: .homeTeamInfo)
+            self.awayTeamInfo = try container.decode(ScheduleResponse.GameResponse.TeamResponse.self, forKey: .awayTeamInfo)
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case uuid
+            case state
+            case startDateTime = "rawStartDateTime"
+            case overtime
+            case shootout
+            case venueInfo
+            case homeTeamInfo
+            case awayTeamInfo
+        }
     }
 }
 
