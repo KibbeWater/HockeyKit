@@ -37,7 +37,7 @@ enum Endpoint: Endpoints {
         case .matchesLatest: return Self.baseURL.appendingPathComponent("/gameday/gameheader")
         case .matchesSchedule(let season, let gameType, let teams):
           return Self.baseURL.appendingPathComponent(
-            "/sports/game-info"
+            "/sports-v2/game-schedule"
           ).appending(queryItems: [
             .init(name: "seasonUuid", value: season.uuid),
             .init(name: "seriesUuid", value: "qQ9-bb0bzEWUk"),

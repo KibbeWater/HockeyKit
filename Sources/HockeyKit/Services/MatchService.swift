@@ -219,6 +219,8 @@ fileprivate class EventFactory {
             return try ShotEvent(from: decoder)
         case .timeout:
             return try TimeoutEvent(from: decoder)
+        case .penaltyShot:
+            return try PenaltyShotEvent(from: decoder)
         }
     }
 

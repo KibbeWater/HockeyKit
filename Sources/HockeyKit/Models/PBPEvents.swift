@@ -31,4 +31,5 @@ public enum PBPEventType: String, Codable, Sendable {
     case period = "period"
     case shot = "shot"
     case timeout = "timeout"
+    case penaltyShot = "shootout-penalty-shot"
 }
