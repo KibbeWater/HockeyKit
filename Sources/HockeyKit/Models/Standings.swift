@@ -20,6 +20,12 @@ public struct Standings: Codable, Equatable, Sendable {
         public var Description: String
         public var First: Int
         public var Last: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case Description = "description"
+            case First = "first"
+            case Last = "last"
+        }
     }
     
     public struct TeamStanding: Codable, Sendable {
@@ -53,6 +59,12 @@ public struct Standings: Codable, Equatable, Sendable {
                     public var short: String
                     public var shortSite: String?
                 }
+            }
+            
+            enum CodingKeys: String, CodingKey {
+                case code
+                case id = "teamId"
+                case teamInfo
             }
         }
         

@@ -65,7 +65,7 @@ struct MatchServiceTests {
             Issue.record("No matches found for team \(mockTeamId)")
         }
         
-        #expect(request.allSatisfy({ $0.homeTeam.code == team.names.code || $0.awayTeam.code == team.names.code }))
+        #expect(request.allSatisfy({ $0.homeTeam.code == team.teamNames.code || $0.awayTeam.code == team.teamNames.code }))
     }
     
     @Test("Get Season Schedule - Date Parsing")
