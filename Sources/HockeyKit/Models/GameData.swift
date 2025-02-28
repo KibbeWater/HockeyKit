@@ -90,6 +90,40 @@ public struct GameData: Codable, Sendable {
                 return estimatedEndDate
             }
         }
+        
+        public init(gameId: Int? = nil, homeTeam: TeamData, awayTeam: TeamData, homeGoals: Int, awayGoals: Int, state: GameState, gameUuid: String, time: GameTime) {
+            self.gameId = gameId
+            self.homeTeam = homeTeam
+            self.awayTeam = awayTeam
+            self.homeGoals = homeGoals
+            self.awayGoals = awayGoals
+            self.state = state
+            self.gameUuid = gameUuid
+            self.time = time
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<GameData.GameOverview.CodingKeys> = try decoder.container(keyedBy: GameData.GameOverview.CodingKeys.self)
+            self.gameId = try container.decodeIfPresent(Int.self, forKey: .gameId)
+            self.homeTeam = try container.decode(GameData.GameOverview.TeamData.self, forKey: .homeTeam)
+            self.awayTeam = try container.decode(GameData.GameOverview.TeamData.self, forKey: .awayTeam)
+            self.homeGoals = try container.decode(Int.self, forKey: .homeGoals)
+            self.awayGoals = try container.decode(Int.self, forKey: .awayGoals)
+            self.state = try container.decode(GameData.GameOverview.GameState.self, forKey: .state)
+            self.gameUuid = try container.decode(String.self, forKey: .gameUuid)
+            self.time = try container.decode(GameData.GameOverview.GameTime.self, forKey: .time)
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case gameId
+            case homeTeam
+            case awayTeam
+            case homeGoals
+            case awayGoals
+            case state
+            case gameUuid
+            case time
+        }
     }
 }
 

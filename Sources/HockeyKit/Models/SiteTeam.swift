@@ -12,7 +12,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
     func toTeam() -> Team {
         Team(
             name: name,
-            code: names.code,
+            code: teamNames.code,
             result: 0
         )
     }
@@ -21,17 +21,17 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         return lhs.id == rhs.id
     }
     
-    init(id: String, name: String, names: LocalizedTeamNames, teamInfo: SiteTeamInfo, icon: String?) {
+    init(id: String, name: String, teamNames: LocalizedTeamNames, teamInfo: SiteTeamInfo, icon: String?) {
         self.id = id
         self.name = name
-        self.names = names
+        self.teamNames = teamNames
         self.teamInfo = teamInfo
         self.icon = icon
     }
     
     public let id: String
     public let name: String
-    public let names: LocalizedTeamNames
+    public let teamNames: LocalizedTeamNames
     public let teamInfo: SiteTeamInfo
     public let icon: String?
     
@@ -40,7 +40,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        names = try container.decode(LocalizedTeamNames.self, forKey: .names)
+        teamNames = try container.decode(LocalizedTeamNames.self, forKey: .teamNames)
         teamInfo = try container.decode(SiteTeamInfo.self, forKey: .teamInfo)
         icon = try container.decodeIfPresent(String.self, forKey: .icon)
     }
@@ -48,7 +48,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
     enum CodingKeys: String, CodingKey {
         case id = "uuid"
         case name
-        case names
+        case teamNames
         case teamInfo
         case icon
     }
@@ -57,7 +57,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         return .init(
             id: "41c4-41c4BiYZU",
             name: "Random Team",
-            names: LocalizedTeamNames(
+            teamNames: LocalizedTeamNames(
                 code: "LHF",
                 short: "LHF",
                 long: "Luleå Hockey",
