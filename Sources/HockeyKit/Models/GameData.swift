@@ -28,7 +28,7 @@ public struct GameData: Codable, Sendable {
             case ended = "GameEnded"
         }
         
-        public struct TeamData: Codable, Equatable, Sendable {
+        public struct TeamData: Codable, Equatable, Sendable, TeamTransformable {
             public var gameId: Int
             public var place: PlaceType
             public var score: Int
@@ -36,6 +36,14 @@ public struct GameData: Codable, Sendable {
             public var teamName: String
             public var teamCode: String
             public var gameUuid: String
+            
+            public func toTeam() -> Team {
+                Team(
+                    name: teamName,
+                    code: teamCode,
+                    result: score
+                )
+            }
             
             public enum PlaceType: String, Codable, Sendable {
                 case home = "home"
