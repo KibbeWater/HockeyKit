@@ -37,8 +37,14 @@ class MatchService: MatchServiceProtocol {
             return cachedSchedule
         }
         
-        let response: ScheduleResponse = try await networkManager.request(endpoint: Endpoint.matchesSchedule(season, .regular))
-        let games = response.gameInfo.map({ $0.toGame() })
+        let network = self.networkManager
+        
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .regular))
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .finals))
+        
+        let (regular, finals) = try await (regularResponse, finalsResponse)
+        
+        let games = (regular.gameInfo + finals.gameInfo).map { $0.toGame() }
         
         try? await scheduleStorage.async.setObject(games, forKey: season.uuid, expiry: .seconds(24 * 60 * 60))
         
@@ -115,12 +121,12 @@ fileprivate struct ScheduleResponse: Codable {
                 shootout: shootout,
                 venue: venueInfo.name,
                 homeTeam: Team(
-                    name: homeTeamInfo.names.long,
+                    name: homeTeamInfo.names?.long ?? "TBD",
                     code: homeTeamInfo.code,
                     result: homeTeamInfo.score ?? 0
                 ),
                 awayTeam: Team(
-                    name: awayTeamInfo.names.long,
+                    name: awayTeamInfo.names?.long ?? "TBD",
                     code: awayTeamInfo.code,
                     result: awayTeamInfo.score ?? 0
                 )
@@ -143,13 +149,13 @@ fileprivate struct ScheduleResponse: Codable {
         struct TeamResponse: Codable {
             var code: String
             var score: Int?
-            var names: NameResponse
+            var names: NameResponse?
             
             init(from decoder: any Decoder) throws {
                 let container: KeyedDecodingContainer<ScheduleResponse.GameResponse.TeamResponse.CodingKeys> = try decoder.container(keyedBy: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.self)
-                self.code = try container.decode(String.self, forKey: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.code)
+                self.code = try container.decodeIfPresent(String.self, forKey: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.code) ?? "TBD"
                 self.score = try? container.decodeIfPresent(Int.self, forKey: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.score)
-                self.names = try container.decode(ScheduleResponse.GameResponse.TeamResponse.NameResponse.self, forKey: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.names)
+                self.names = try container.decodeIfPresent(ScheduleResponse.GameResponse.TeamResponse.NameResponse.self, forKey: ScheduleResponse.GameResponse.TeamResponse.CodingKeys.names)
             }
             
             struct NameResponse: Codable {

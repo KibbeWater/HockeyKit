@@ -7,7 +7,7 @@
 
 import Foundation
 
-class NetworkManager {
+class NetworkManager: @unchecked Sendable {
     private let session: URLSession
 
     init(session: URLSession = .shared) {
