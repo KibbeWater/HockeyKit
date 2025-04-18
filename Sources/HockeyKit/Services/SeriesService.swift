@@ -5,9 +5,17 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
+
+
 fileprivate struct SeasonAPIResponse: Codable {
     let season: [Season]
+    let series: [Series]
+    
     let ssgtUuid: String
+    
+    struct Series: Codable {
+        let uuid: String
+    }
 }
 
 class SeriesService: SeriesServiceProtocol {
@@ -37,6 +45,7 @@ class SeriesService: SeriesServiceProtocol {
     }
     
     func getCurrentSeries() async throws -> Series? {
-        return Series(id: try await getSiteSettings().ssgtUuid)
+        guard let uuid = try await getSiteSettings().series.first?.uuid else { return nil }
+        return Series(id: uuid)
     }
 }
