@@ -59,7 +59,7 @@ enum Endpoint: Endpoints {
             
         case .player(let id): return Self.baseURL.appendingPathComponent("/sports/player/profile-page")
                 .appending(queryItems: [.init(name: "playerUuid", value: id)])
-        case .playerGameLog(let player): return Self.baseURL.appendingPathComponent("/sports/player/playerProfile_gameLog")
+        case .playerGameLog(let player): return Self.baseURL.appendingPathComponent("/statistics-v2/athlete/playerProfile_gameLog")
                 .appending(queryItems: [.init(name: "playerUuid", value: player.uuid)])
             
         case .siteSettings: return Self.baseURL.appendingPathComponent("/sports/season-series-game-types-filter")
