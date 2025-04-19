@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum HockeyAPIError: Error, LocalizedError, Equatable {
+public enum HockeyAPIError: Error, LocalizedError, Equatable {
     case networkError
     case decodingError
     case notFound
@@ -15,7 +15,7 @@ enum HockeyAPIError: Error, LocalizedError, Equatable {
     case serverError(statusCode: Int)
     case internalError(description: String)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .networkError:
             return "Network error occurred. Please try again."
