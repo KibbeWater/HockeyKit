@@ -9,10 +9,10 @@ public struct PlayerGameLog: Codable, Hashable, Sendable {
     public let season: Int
     public let gameType: PlayerGameType
     public let info: PlayerGameStatInfo
-    public let gamesPlayed: Int
-    public let wins: Int
-    public let draws: Int
-    public let losses: Int
+    public let gamesPlayed: Int?
+    public let wins: Int?
+    public let draws: Int?
+    public let losses: Int?
     
     enum CodingKeys: String, CodingKey {
         case season = "Season"
@@ -27,11 +27,11 @@ public struct PlayerGameLog: Codable, Hashable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.season = try container.decode(Int.self, forKey: .season)
-        self.gamesPlayed = try container.decode(Int.self, forKey: .gamesPlayed)
+        self.gamesPlayed = try container.decodeIfPresent(Int.self, forKey: .gamesPlayed)
         self.info = try container.decode(PlayerGameStatInfo.self, forKey: .info)
-        self.wins = try container.decode(Int.self, forKey: .wins)
-        self.draws = try container.decode(Int.self, forKey: .draws)
-        self.losses = try container.decode(Int.self, forKey: .losses)
+        self.wins = try container.decodeIfPresent(Int.self, forKey: .wins)
+        self.draws = try container.decodeIfPresent(Int.self, forKey: .draws)
+        self.losses = try container.decodeIfPresent(Int.self, forKey: .losses)
         
         self.gameType = (try? container.decode(PlayerGameType.self, forKey: .gameType)) ?? .unknown
     }
