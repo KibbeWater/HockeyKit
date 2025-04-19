@@ -16,19 +16,19 @@ public struct Player: Codable, Equatable, Sendable {
     public let uuid: String
     public let age: PlayerAttribute
     public let birthDate: String
-    public let careerStats: [PlayerAttribute]
+    public let careerStats: [PlayerAttribute]?
     public let firstName: String
     public let lastName: String
     public let fullName: String
     public let position: String
     public let height: PlayerAttribute
     public let jerseyNumber: Int?
-    public let seasonStats: [PlayerAttribute]
+    public let seasonStats: [PlayerAttribute]?
     public let weight: PlayerAttribute
     public let team: PlayerTeam
     
     public func getStats(for key: PlayerStatisticKey) -> Float? {
-        let stats = seasonStats.first(where: { $0.field == key.rawValue })
+        let stats = seasonStats?.first(where: { $0.field == key.rawValue })
         return stats?.value
     }
     
