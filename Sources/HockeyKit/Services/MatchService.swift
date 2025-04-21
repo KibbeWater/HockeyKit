@@ -64,8 +64,14 @@ class MatchService: MatchServiceProtocol {
             return cachedSchedule
         }
         
-        let response: ScheduleResponse = try await networkManager.request(endpoint: Endpoint.matchesSchedule(season, .regular, teams))
-        let games = response.gameInfo.map({ $0.toGame() })
+        let network = self.networkManager
+        
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .regular, teams))
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .finals, teams))
+        
+        let (regular, finals) = try await (regularResponse, finalsResponse)
+        
+        let games = (regular.gameInfo + finals.gameInfo).map { $0.toGame() }
         
         try? await scheduleStorage.async.setObject(games, forKey: cacheKey)
         
