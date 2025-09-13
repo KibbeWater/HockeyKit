@@ -35,22 +35,34 @@ struct MatchServiceTests {
     @Test("Get Season Schedule - Request Succeeds")
     func getSeasonScheduleRequestSucceeds() async throws {
         let seasonService = SeasonService(networkManager: networkManager)
+        let seriesService = SeriesService(networkManager: networkManager)
         
         guard let season = try? await seasonService.getCurrent() else {
             Issue.record("Could not get current season")
             return
         }
         
-        let request = try await matchService.getSeasonSchedule(season)
+        guard let series = try? await seriesService.getCurrentSeries() else {
+            Issue.record("Could not get current season")
+            return
+        }
+        
+        let request = try await matchService.getSeasonSchedule(season, series: series)
         #expect(request.isEmpty == false)
     }
     
     @Test("Get Season Schedule - Team Filtering")
     func getSeasonScheduleTeamFiltering() async throws {
         let seasonService = SeasonService(networkManager: networkManager)
+        let seriesService = SeriesService(networkManager: networkManager)
         let teamService = TeamService(networkManager: networkManager)
         
         guard let season = try? await seasonService.getCurrent() else {
+            Issue.record("Could not get current season")
+            return
+        }
+        
+        guard let series = try? await seriesService.getCurrentSeries() else {
             Issue.record("Could not get current season")
             return
         }
@@ -60,7 +72,7 @@ struct MatchServiceTests {
             return
         }
         
-        let request = try await matchService.getSeasonSchedule(season, withTeams: [mockTeamId])
+        let request = try await matchService.getSeasonSchedule(season, series: series, withTeams: [mockTeamId])
         if request.isEmpty {
             Issue.record("No matches found for team \(mockTeamId)")
         }
@@ -71,13 +83,19 @@ struct MatchServiceTests {
     @Test("Get Season Schedule - Date Parsing")
     func getSeasonScheduleDateParsing() async throws {
         let seasonService = SeasonService(networkManager: networkManager)
+        let seriesService = SeriesService(networkManager: networkManager)
         
         guard let season = try? await seasonService.getCurrent() else {
             Issue.record("Could not get current season")
             return
         }
         
-        let request = try await matchService.getSeasonSchedule(season)
+        guard let series = try? await seriesService.getCurrentSeries() else {
+            Issue.record("Could not get current season")
+            return
+        }
+        
+        let request = try await matchService.getSeasonSchedule(season, series: series)
         #expect(request.allSatisfy({ $0.date != Date.distantPast }))
     }
     
@@ -131,7 +149,20 @@ struct MatchServiceTests {
             return
         }
         
-        let _ = try await matchService.getMatchExtra(game)
+        await #expect {
+            let _ = try await matchService.getMatchExtra(game)
+        } throws: { (error) async -> Bool in
+            guard let apiErr = error as? HockeyAPIError else {
+                Issue.record("Error is not an API error")
+                return false
+            }
+            
+            guard apiErr == .gameNotPlayed else {
+                Issue.record("Error is not a game not played error")
+                return false
+            }
+            return true
+        }
     }
     
     @Test("Get Match PBP - Request Succeeds")

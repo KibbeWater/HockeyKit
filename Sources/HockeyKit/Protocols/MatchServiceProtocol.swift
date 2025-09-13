@@ -9,10 +9,10 @@ import Foundation
 
 public protocol MatchServiceProtocol {
     func getLatest() async throws -> [Game]
-    
-    func getSeasonSchedule(_ season: Season) async throws -> [Game]
-    func getSeasonSchedule(_ season: Season, withTeams: [String]) async throws -> [Game]
-    
+
+    func getSeasonSchedule(_ season: Season, series: Series) async throws -> [Game]
+    func getSeasonSchedule(_ season: Season, series: Series, withTeams: [String]) async throws -> [Game]
+
     /// Retreive game information about live games
     ///
     /// > Warning: This function is unable to check if a game is live or not,
@@ -24,7 +24,7 @@ public protocol MatchServiceProtocol {
     ///
     /// - Returns: Information about a live game.
     func getMatch(_ matchId: String) async throws -> GameData
-    
+
     func getMatchStats(_ game: Game) async throws -> GameStats
     func getMatchExtra(_ game: Game) async throws -> GameExtra
     func getMatchPBP(_ game: Game) async throws -> PBPEvents

@@ -30,7 +30,7 @@ class MatchService: MatchServiceProtocol {
         return GameData(gameOverview: req)
     }
     
-    func getSeasonSchedule(_ season: Season) async throws -> [Game] {
+    func getSeasonSchedule(_ season: Season, series: Series) async throws -> [Game] {
         let scheduleStorage = cache.transformCodable(ofType: [Game].self)
         
         if let cachedSchedule = try? await scheduleStorage.async.object(forKey: season.uuid) {
@@ -39,19 +39,20 @@ class MatchService: MatchServiceProtocol {
         
         let network = self.networkManager
         
-        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .regular))
-        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .finals))
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular))
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals))
         
-        let (regular, finals) = try await (regularResponse, finalsResponse)
+        let regular = try? await regularResponse
+        let finals = try? await finalsResponse
         
-        let games = (regular.gameInfo + finals.gameInfo).map { $0.toGame() }
+        let games = ((regular?.gameInfo ?? []) + (finals?.gameInfo ?? [])).map { $0.toGame() }
         
         try? await scheduleStorage.async.setObject(games, forKey: season.uuid, expiry: .seconds(24 * 60 * 60))
         
         return games
     }
     
-    func getSeasonSchedule(_ season: Season, withTeams teams: [String]) async throws -> [Game] {
+    func getSeasonSchedule(_ season: Season, series: Series, withTeams teams: [String]) async throws -> [Game] {
         let scheduleStorage = cache.transformCodable(ofType: [Game].self)
         
         let cacheKey = teams
@@ -66,12 +67,13 @@ class MatchService: MatchServiceProtocol {
         
         let network = self.networkManager
         
-        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .regular, teams))
-        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, .finals, teams))
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular, teams))
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals, teams))
         
-        let (regular, finals) = try await (regularResponse, finalsResponse)
+        let regular = try? await regularResponse
+        let finals = try? await finalsResponse
         
-        let games = (regular.gameInfo + finals.gameInfo).map { $0.toGame() }
+        let games = ((regular?.gameInfo ?? []) + (finals?.gameInfo ?? [])).map { $0.toGame() }
         
         try? await scheduleStorage.async.setObject(games, forKey: cacheKey)
         
@@ -94,6 +96,8 @@ class MatchService: MatchServiceProtocol {
     }
     
     func getMatchExtra(_ game: Game) async throws -> GameExtra {
+        guard game.played else { throw HockeyAPIError.gameNotPlayed }
+        
         let extraStorage = cache.transformCodable(ofType: GameExtra.self)
         
         if let extra = try? await extraStorage.async.object(forKey: "extra_\(game.id)") {
