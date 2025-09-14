@@ -26,16 +26,33 @@ public class HockeyAPI: ObservableObject {
         self.standings = StandingService(networkManager: networkManager)
         self.player = PlayerService(networkManager: networkManager)
         self.listener = ListenerService()
+        
+        #if DEBUG
+        resetCache()
+        #else
+        removeExired()
+        #endif
     }
     
     public func resetCache() {
         let networkManager = NetworkManager()
         
-        SeasonService(networkManager: networkManager).resetCache()
-        MatchService(networkManager: networkManager).resetCache()
-        TeamService(networkManager: networkManager).resetCache()
-        SeriesService(networkManager: networkManager).resetCache()
-        StandingService(networkManager: networkManager).resetCache()
-        PlayerService(networkManager: networkManager).resetCache()
+        try? SeasonService(networkManager: networkManager).getCache().removeAll()
+        try? MatchService(networkManager: networkManager).getCache().removeAll()
+        try? TeamService(networkManager: networkManager).getCache().removeAll()
+        try? SeriesService(networkManager: networkManager).getCache().removeAll()
+        try? StandingService(networkManager: networkManager).getCache().removeAll()
+        try? PlayerService(networkManager: networkManager).getCache().removeAll()
+    }
+    
+    public func removeExired() {
+        let networkManager = NetworkManager()
+        
+        try? SeasonService(networkManager: networkManager).getCache().removeExpiredObjects()
+        try? MatchService(networkManager: networkManager).getCache().removeExpiredObjects()
+        try? TeamService(networkManager: networkManager).getCache().removeExpiredObjects()
+        try? SeriesService(networkManager: networkManager).getCache().removeExpiredObjects()
+        try? StandingService(networkManager: networkManager).getCache().removeExpiredObjects()
+        try? PlayerService(networkManager: networkManager).getCache().removeExpiredObjects()
     }
 }

@@ -5,6 +5,8 @@
 //  Created by Linus Rönnbäck Larsson on 28/11/24.
 //
 
+import Cache
+
 fileprivate struct TeamSettingsAPIResponse: Codable {
     public let instanceId: String
     public let name: String
@@ -22,8 +24,8 @@ class TeamService: TeamServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     func getTeams() async throws -> [SiteTeam] {

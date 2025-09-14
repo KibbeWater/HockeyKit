@@ -5,7 +5,7 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
-
+import Cache
 
 fileprivate struct SeasonAPIResponse: Codable {
     let season: [Season]
@@ -26,8 +26,8 @@ class SeriesService: SeriesServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     private func getSiteSettings() async throws -> SeasonAPIResponse {

@@ -5,6 +5,8 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
+import Cache
+
 class StandingService: StandingServiceProtocol {
     private let networkManager: NetworkManager
     private let cache = initCache(forKey: "StandingService")
@@ -13,8 +15,8 @@ class StandingService: StandingServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     func getStandings(ssgtUuid: String) async throws -> Standings {

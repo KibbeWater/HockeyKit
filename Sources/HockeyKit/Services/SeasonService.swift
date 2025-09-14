@@ -21,8 +21,8 @@ class SeasonService: SeasonServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     private func getSiteSettings() async throws -> SeasonAPIResponse {

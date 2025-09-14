@@ -5,6 +5,8 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
+import Cache
+
 class PlayerService: PlayerServiceProtocol {
     private let networkManager: NetworkManager
     private let cache = initCache(forKey: "PlayerService")
@@ -13,8 +15,8 @@ class PlayerService: PlayerServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     func getPlayer(withId id: String) async throws -> Player {

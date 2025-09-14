@@ -16,8 +16,8 @@ class MatchService: MatchServiceProtocol {
         self.networkManager = networkManager
     }
     
-    func resetCache() {
-        try? cache.removeAll()
+    func getCache() -> Storage<String, String> {
+        return cache
     }
     
     func getLatest() async throws -> [Game] {
@@ -57,7 +57,7 @@ class MatchService: MatchServiceProtocol {
         
         let cacheKey = teams
             .sorted(by: { $0 < $1 })
-            .map({ $0.suffix(3) })
+            .map({ $0.suffix(6) })
             .joined(separator: "-")
         if let cachedSchedule = try? await scheduleStorage.async.object(
             forKey: cacheKey
