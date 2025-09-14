@@ -28,6 +28,14 @@ class TeamService: TeamServiceProtocol {
         return cache
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
+    func resetCache(forKey: String) {
+        try? cache.removeObject(forKey: forKey)
+    }
+    
     func getTeams() async throws -> [SiteTeam] {
         let teamStorage = cache.transformCodable(ofType: [SiteTeam].self)
         

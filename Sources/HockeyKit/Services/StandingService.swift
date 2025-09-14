@@ -19,6 +19,14 @@ class StandingService: StandingServiceProtocol {
         return cache
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
+    func resetCache(forKey: String) {
+        try? cache.removeObject(forKey: forKey)
+    }
+    
     func getStandings(ssgtUuid: String) async throws -> Standings {
         let standingsStorage = cache.transformCodable(ofType: Standings.self)
         

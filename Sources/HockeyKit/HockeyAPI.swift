@@ -35,14 +35,12 @@ public class HockeyAPI: ObservableObject {
     }
     
     public func resetCache() {
-        let networkManager = NetworkManager()
-        
-        try? SeasonService(networkManager: networkManager).getCache().removeAll()
-        try? MatchService(networkManager: networkManager).getCache().removeAll()
-        try? TeamService(networkManager: networkManager).getCache().removeAll()
-        try? SeriesService(networkManager: networkManager).getCache().removeAll()
-        try? StandingService(networkManager: networkManager).getCache().removeAll()
-        try? PlayerService(networkManager: networkManager).getCache().removeAll()
+        season.resetCache()
+        match.resetCache()
+        team.resetCache()
+        series.resetCache()
+        standings.resetCache()
+        player.resetCache()
     }
     
     public func removeExired() {

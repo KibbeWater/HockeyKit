@@ -19,6 +19,14 @@ class PlayerService: PlayerServiceProtocol {
         return cache
     }
     
+    func resetCache() {
+        try? cache.removeAll()
+    }
+    
+    func resetCache(forKey: String) {
+        try? cache.removeObject(forKey: forKey)
+    }
+    
     func getPlayer(withId id: String) async throws -> Player {
         let playerStorage = cache.transformCodable(ofType: Player.self)
         

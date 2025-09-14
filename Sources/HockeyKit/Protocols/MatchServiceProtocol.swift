@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol MatchServiceProtocol {
+public protocol MatchServiceProtocol: CacheReset {
     func getLatest() async throws -> [Game]
 
     func getSeasonSchedule(_ season: Season, series: Series) async throws -> [Game]
