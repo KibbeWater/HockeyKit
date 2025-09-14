@@ -10,4 +10,5 @@ import Foundation
 public protocol SeasonServiceProtocol {
     func getSeasons() async throws -> [Season]
     func getCurrent() async throws -> Season
+    func getCurrentSsgt() async throws -> String
 }

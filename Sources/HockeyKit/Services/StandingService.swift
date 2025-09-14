@@ -17,14 +17,14 @@ class StandingService: StandingServiceProtocol {
         try? cache.removeAll()
     }
     
-    func getStandings(series: Series) async throws -> Standings {
+    func getStandings(ssgtUuid: String) async throws -> Standings {
         let standingsStorage = cache.transformCodable(ofType: Standings.self)
         
         if let standings = try? await standingsStorage.async.object(forKey: "standings-list") {
             return standings
         }
         
-        let standings: Standings = try await networkManager.request(endpoint: Endpoint.standings(series))
+        let standings: Standings = try await networkManager.request(endpoint: Endpoint.standings(ssgtUuid))
         
         try? await standingsStorage.async.setObject(standings, forKey: "standings-list")
         return standings

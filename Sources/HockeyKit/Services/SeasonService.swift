@@ -50,4 +50,8 @@ class SeasonService: SeasonServiceProtocol {
         }
         return firstSeason
     }
+    
+    func getCurrentSsgt() async throws -> String {
+        return try await getSiteSettings().ssgtUuid
+    }
 }

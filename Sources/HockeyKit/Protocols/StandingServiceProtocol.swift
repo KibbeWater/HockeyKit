@@ -6,5 +6,5 @@
 //
 
 public protocol StandingServiceProtocol {
-    func getStandings(series: Series) async throws -> Standings
+    func getStandings(ssgtUuid: String) async throws -> Standings
 }

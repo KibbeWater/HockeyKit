@@ -23,11 +23,13 @@ struct StandingServiceTests {
     
     @Test("Get Standings - Request Success")
     func getCurSeriesRequestSuccess() async throws {
-        let seriesService = SeriesService(networkManager: networkManager)
-        guard let series = try? await seriesService.getCurrentSeries() else {
-            Issue.record("Unable to find current series")
+        let seasonService = SeasonService(networkManager: networkManager)
+        
+        guard let ssgtUuid = try? await seasonService.getCurrentSsgt() else {
+            Issue.record("Unable to find current ssgt")
             return
         }
-        let _ = try await standingService.getStandings(series: series)
+        
+        let _ = try await standingService.getStandings(ssgtUuid: ssgtUuid)
     }
 }

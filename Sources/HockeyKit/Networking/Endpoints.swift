@@ -28,7 +28,7 @@ enum Endpoint: Endpoints {
     case player(String)
     case playerGameLog(Player)
     
-    case standings(Series)
+    case standings(String)
     
     case siteSettings
 
@@ -48,14 +48,14 @@ enum Endpoint: Endpoints {
             .init(name: "teams[]", value: teams!.joined(separator: ",") )
           ])
         case .matchStats(let game): return Self.baseURL.appendingPathComponent("/gameday/team-stats/\(game.id)")
-        case .matchExtra(let game): return Self.baseURL.appendingPathComponent("/sports/game-info/\(game.id)")
+        case .matchExtra(let game): return Self.baseURL.appendingPathComponent("/sports-v2/game-info/\(game.id)")
         case .match(let id): return Self.baseURL.appendingPathComponent("/gameday/game-overview/\(id)")
             
         case .teams: return Self.baseURL.appendingPathComponent("/site/settings")
         case .teamLineup(let team): return Self.baseURL.appendingPathComponent("/sports/players/\(team.id)")
             
-        case .standings(let series): return Self.baseURL.appendingPathComponent("/sports/league-standings")
-                .appending(queryItems: [.init(name: "ssgtUuid", value: series.id)])
+        case .standings(let ssgtUuid): return Self.baseURL.appendingPathComponent("/sports/league-standings")
+                .appending(queryItems: [.init(name: "ssgtUuid", value: ssgtUuid)])
             
         case .player(let id): return Self.baseURL.appendingPathComponent("/sports/player/profile-page")
                 .appending(queryItems: [.init(name: "playerUuid", value: id)])
