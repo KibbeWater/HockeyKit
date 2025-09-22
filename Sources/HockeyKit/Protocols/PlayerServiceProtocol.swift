@@ -5,7 +5,7 @@
 //  Created by Linus Rönnbäck Larsson on 29/11/24.
 //
 
-public protocol PlayerServiceProtocol: CacheReset {
+public protocol PlayerServiceProtocol {
     func getPlayer(withId: String) async throws -> Player
     func getGameLog(_ player: Player) async throws -> [PlayerGameLog]
 }

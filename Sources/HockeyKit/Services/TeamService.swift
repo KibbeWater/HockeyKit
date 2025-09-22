@@ -5,7 +5,7 @@
 //  Created by Linus Rönnbäck Larsson on 28/11/24.
 //
 
-import Cache
+import Foundation
 
 fileprivate struct TeamSettingsAPIResponse: Codable {
     public let instanceId: String
@@ -18,34 +18,13 @@ fileprivate struct TeamSettingsAPIResponse: Codable {
 
 class TeamService: TeamServiceProtocol {
     private let networkManager: NetworkManager
-    private let cache = initCache(forKey: "TeamService")
     
     init(networkManager: NetworkManager) {
         self.networkManager = networkManager
     }
     
-    func getCache() -> Storage<String, String> {
-        return cache
-    }
-    
-    func resetCache() {
-        try? cache.removeAll()
-    }
-    
-    func resetCache(forKey: String) {
-        try? cache.removeObject(forKey: forKey)
-    }
-    
     func getTeams() async throws -> [SiteTeam] {
-        let teamStorage = cache.transformCodable(ofType: [SiteTeam].self)
-        
-        if let teams = try? await teamStorage.async.object(forKey: "team-list") {
-            return teams
-        }
-        
         let res: TeamSettingsAPIResponse = try await networkManager.request(endpoint: Endpoint.teams)
-        
-        try? await teamStorage.async.setObject(res.teamsInSite, forKey: "team-list")
         
         return res.teamsInSite
     }

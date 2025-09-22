@@ -5,6 +5,6 @@
 //  Created by Linus Rönnbäck Larsson on 28/11/24.
 //
 
-public protocol StandingServiceProtocol: CacheReset {
+public protocol StandingServiceProtocol {
     func getStandings(ssgtUuid: String) async throws -> Standings
 }
