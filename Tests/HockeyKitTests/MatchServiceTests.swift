@@ -23,7 +23,6 @@ struct MatchServiceTests {
     init() {
         self.mockMatchService = MatchService(networkManager: mockNetworkManager)
         self.matchService = MatchService(networkManager: networkManager)
-        self.matchService.resetCache()
     }
     
     @Test("Get Latest - Request Succeeds")
