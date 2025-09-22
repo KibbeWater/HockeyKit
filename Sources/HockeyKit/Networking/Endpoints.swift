@@ -49,7 +49,7 @@ enum Endpoint: Endpoints {
           ])
         case .matchStats(let game): return Self.baseURL.appendingPathComponent("/gameday/team-stats/\(game.id)")
         case .matchExtra(let game): return Self.baseURL.appendingPathComponent("/sports-v2/game-info/\(game.id)")
-        case .match(let id): return Self.baseURL.appendingPathComponent("/gameday/game-overview/\(id)")
+        case .match(let id): return Self.baseURL.appendingPathComponent("/sports-v2/game-info/\(id)")
             
         case .teams: return Self.baseURL.appendingPathComponent("/site/settings")
         case .teamLineup(let team): return Self.baseURL.appendingPathComponent("/sports/players/\(team.id)")
