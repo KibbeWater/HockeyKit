@@ -31,6 +31,16 @@ struct MatchServiceTests {
         #expect(request.isEmpty == false)
     }
     
+    @Test("Get Match - Request Succeeds")
+    func getMatchSucceeds() async throws {
+        guard let latest = try? await matchService.getLatest(), let match = latest.first else {
+            Issue.record("Could not get matches")
+            return
+        }
+        
+        let request = try await matchService.getMatch(match.id)
+    }
+    
     @Test("Get Season Schedule - Request Succeeds")
     func getSeasonScheduleRequestSucceeds() async throws {
         let seasonService = SeasonService(networkManager: networkManager)

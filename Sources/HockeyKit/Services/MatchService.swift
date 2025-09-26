@@ -16,16 +16,16 @@ class MatchService: MatchServiceProtocol {
     
     func getLatest() async throws -> [Game] {
         let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: Endpoint.matchesLatest)
-        return req.flatMap { $1 }.map({ $0.toGame() })
+        return req.flatMap { $1 }.map { $0.toGame() }
     }
     
-    func getMatch(_ matchId: String) async throws -> GameData {
-        let req: GameData.GameOverview = try await networkManager.request(endpoint: Endpoint.match(matchId))
-        return GameData(gameOverview: req)
+    func getMatch(_ matchId: String) async throws -> GameExtra {
+        let req: GameExtra = try await networkManager.request(endpoint: Endpoint.match(matchId))
+        return req
     }
     
     func getSeasonSchedule(_ season: Season, series: Series) async throws -> [Game] {
-        let network = self.networkManager
+        let network = networkManager
         
         async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular))
         async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals))
@@ -39,7 +39,7 @@ class MatchService: MatchServiceProtocol {
     }
     
     func getSeasonSchedule(_ season: Season, series: Series, withTeams teams: [String]) async throws -> [Game] {
-        let network = self.networkManager
+        let network = networkManager
         
         async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular, teams))
         async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals, teams))
@@ -72,11 +72,11 @@ class MatchService: MatchServiceProtocol {
         guard game.played || game.isLive() else { throw HockeyAPIError.gameNotPlayed }
 
         let pbp: [AnyPBPEvent] = try await networkManager.request(endpoint: LiveEndpoint.playByPlay(game))
-        return PBPEvents(events: pbp.map({ $0.event }).sorted(by: { $0.realWorldTime < $1.realWorldTime}))
+        return PBPEvents(events: pbp.map { $0.event }.sorted(by: { $0.realWorldTime < $1.realWorldTime }))
     }
 }
 
-fileprivate struct ScheduleResponse: Codable {
+private struct ScheduleResponse: Codable {
     var gameInfo: [GameResponse]
     
     struct GameResponse: Codable, GameTransformable {
@@ -160,7 +160,7 @@ fileprivate struct ScheduleResponse: Codable {
     }
 }
 
-fileprivate struct LatestGameResponse: Codable, GameTransformable {
+private struct LatestGameResponse: Codable, GameTransformable {
     func toGame() -> Game {
         Game(
             id: uuid,
@@ -187,7 +187,7 @@ fileprivate struct LatestGameResponse: Codable, GameTransformable {
     var awayTeam: Team
 }
 
-fileprivate struct AnyPBPEvent: Decodable {
+private struct AnyPBPEvent: Decodable {
     let event: PBPEventProtocol
     
     enum CodingKeys: CodingKey {
@@ -199,7 +199,7 @@ fileprivate struct AnyPBPEvent: Decodable {
     }
 }
 
-fileprivate class EventFactory {
+private class EventFactory {
     static func decode(from decoder: Decoder) throws -> PBPEventProtocol {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let type = try container.decode(PBPEventType.self, forKey: .type)

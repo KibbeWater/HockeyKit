@@ -23,7 +23,7 @@ public protocol MatchServiceProtocol {
     ///     - matchId: A live or already played game.
     ///
     /// - Returns: Information about a live game.
-    func getMatch(_ matchId: String) async throws -> GameData
+    func getMatch(_ matchId: String) async throws -> GameExtra
 
     func getMatchStats(_ game: Game) async throws -> GameStats
     func getMatchExtra(_ game: Game) async throws -> GameExtra
