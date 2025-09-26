@@ -9,14 +9,18 @@ import Foundation
 
 public struct GameExtra: Codable, Sendable {
     public var gameInfo: GameInfo
-    public var homeTeam: Team
-    public var awayTeam: Team
+    public var homeTeam: GTeam
+    public var awayTeam: GTeam
     public var ssgtUuid: String
     
-    public struct Team: Codable, Sendable {
+    public struct GTeam: Codable, Sendable, TeamTransformable {
         public var uuid: String
         public var names: TeamNames
         public var score: Int
+        
+        public func toTeam() -> Team {
+            .init(name: names.long, code: names.code, result: score)
+        }
         
         public struct TeamNames: Codable, Sendable {
             public var code: String
@@ -24,10 +28,10 @@ public struct GameExtra: Codable, Sendable {
         }
         
         public init(from decoder: any Decoder) throws {
-            let container: KeyedDecodingContainer<Team.CodingKeys> = try decoder.container(keyedBy: Team.CodingKeys.self)
-            self.uuid = try container.decode(String.self, forKey: Team.CodingKeys.uuid)
-            self.names = try container.decode(Team.TeamNames.self, forKey: Team.CodingKeys.names)
-            self.score = (try? container.decode(Int.self, forKey: Team.CodingKeys.score)) ?? 0
+            let container: KeyedDecodingContainer<GTeam.CodingKeys> = try decoder.container(keyedBy: GTeam.CodingKeys.self)
+            self.uuid = try container.decode(String.self, forKey: GTeam.CodingKeys.uuid)
+            self.names = try container.decode(GTeam.TeamNames.self, forKey: GTeam.CodingKeys.names)
+            self.score = (try? container.decode(Int.self, forKey: GTeam.CodingKeys.score)) ?? 0
         }
         
         private enum CodingKeys: String, CodingKey {
