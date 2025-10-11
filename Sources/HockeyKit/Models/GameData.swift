@@ -112,7 +112,16 @@ public struct GameData: Codable, Sendable {
         
         public init(from decoder: any Decoder) throws {
             let container: KeyedDecodingContainer<GameData.GameOverview.CodingKeys> = try decoder.container(keyedBy: GameData.GameOverview.CodingKeys.self)
-            self.gameId = try container.decodeIfPresent(Int.self, forKey: .gameId)
+
+            // Handle gameId which can be either Int or String from the API
+            if let gameIdInt = try? container.decodeIfPresent(Int.self, forKey: .gameId) {
+                self.gameId = gameIdInt
+            } else if let gameIdString = try? container.decodeIfPresent(String.self, forKey: .gameId) {
+                self.gameId = Int(gameIdString)
+            } else {
+                self.gameId = nil
+            }
+
             self.homeTeam = try container.decode(GameData.GameOverview.TeamData.self, forKey: .homeTeam)
             self.awayTeam = try container.decode(GameData.GameOverview.TeamData.self, forKey: .awayTeam)
             self.homeGoals = try container.decode(Int.self, forKey: .homeGoals)
