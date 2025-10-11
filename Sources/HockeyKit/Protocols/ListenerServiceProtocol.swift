@@ -6,17 +6,20 @@
 //
 
 import Foundation
+
+#if canImport(Combine)
 import Combine
+#endif
 
 public protocol ListenerServiceProtocol {
     func connect()
     func disconnect()
-    
+
     func requestInitialData(_ gameIds: [String])
-    
-    func subscribe(_ gameId: String) -> AnyPublisher<GameData, Never>
-    func subscribe(_ gameIds: [String]) -> AnyPublisher<GameData, Never>
-    func subscribe() -> AnyPublisher<GameData, Never>
-    
-    func errorPublisher() -> AnyPublisher<Error, Never>
+
+    func subscribe(_ gameId: String) -> Publisher<GameData, Never>
+    func subscribe(_ gameIds: [String]) -> Publisher<GameData, Never>
+    func subscribe() -> Publisher<GameData, Never>
+
+    func errorPublisher() -> Publisher<Error, Never>
 }

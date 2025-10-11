@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class HockeyAPI: ObservableObject {
+public class HockeyAPI {
     public let season: SeasonServiceProtocol
     public let match: MatchServiceProtocol
     public let team: TeamServiceProtocol

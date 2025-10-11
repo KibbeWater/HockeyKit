@@ -6,7 +6,10 @@
 //
 
 import Foundation
+
+#if canImport(Combine)
 @preconcurrency import Combine
+#endif
 
 actor BufferManager {
     private var buffer = Data()
@@ -78,7 +81,11 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     private var cancellables = Set<AnyCancellable>()
     
     /// Indicates whether the stream is currently active
+    #if canImport(Combine)
     @Published private(set) public var isConnected = false
+    #else
+    private(set) public var isConnected = false
+    #endif
     
     /// Buffer manager for thread-safe access to the data buffer
     private let bufferManager = BufferManager()
@@ -170,21 +177,21 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         }
     }
     
-    public func subscribe(_ gameId: String) -> AnyPublisher<GameData, Never> {
+    public func subscribe(_ gameId: String) -> Publisher<GameData, Never> {
         requestInitialData([gameId])
         return subscribe()
     }
     
-    public func subscribe(_ gameIds: [String]) -> AnyPublisher<GameData, Never> {
+    public func subscribe(_ gameIds: [String]) -> Publisher<GameData, Never> {
         requestInitialData(gameIds)
         return subscribe()
     }
     
-    public func subscribe() -> AnyPublisher<GameData, Never> {
+    public func subscribe() -> Publisher<GameData, Never> {
         eventSubject.eraseToAnyPublisher()
     }
     
-    public func errorPublisher() -> AnyPublisher<Error, Never> {
+    public func errorPublisher() -> Publisher<Error, Never> {
         errorSubject.eraseToAnyPublisher()
     }
     
