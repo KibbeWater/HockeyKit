@@ -58,7 +58,7 @@ public final class Publisher<Output, Failure: Error>: Sendable {
 }
 
 /// A subject that broadcasts elements to multiple subscribers
-public final class PassthroughSubject<Output, Failure: Error>: Sendable {
+public final class PassthroughSubject<Output, Failure: Error>: @unchecked Sendable {
     private let lock = NSLock()
     private var subscribers: [UUID: @Sendable (Output) -> Void] = [:]
     private var errorSubscribers: [UUID: @Sendable (Failure) -> Void] = [:]

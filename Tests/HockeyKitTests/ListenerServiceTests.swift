@@ -42,7 +42,7 @@ struct ListenerServiceTests {
             service.connect()
             
             let sleepAmount: Double = 15
-            try await Task.sleep(nanoseconds: UInt64(sleepAmount * Double(NSEC_PER_SEC)))
+            try await Task.sleep(nanoseconds: UInt64(sleepAmount * 1_000_000_000))
             
             cancellable.cancel()
         }
@@ -62,14 +62,14 @@ struct ListenerServiceTests {
                 }
             
             service.connect()
-            
+
             let sleepAmount: Double = 5
-            try await Task.sleep(nanoseconds: UInt64(sleepAmount * Double(NSEC_PER_SEC)))
-            
+            try await Task.sleep(nanoseconds: UInt64(sleepAmount * 1_000_000_000))
+
             cancellable.cancel()
         }
     }
-    
+
     @Test("Scenario - Invalid Format")
     func invalidFormat() async throws {
         let id = "invalid-format"
@@ -90,10 +90,10 @@ struct ListenerServiceTests {
                 }
             
             service.connect()
-            
+
             let sleepAmount: Double = 5
-            try await Task.sleep(nanoseconds: UInt64(sleepAmount * Double(NSEC_PER_SEC)))
-            
+            try await Task.sleep(nanoseconds: UInt64(sleepAmount * 1_000_000_000))
+
             cancellable.cancel()
             errorCancellable.cancel()
         }
