@@ -12,7 +12,7 @@ import Testing
 @Suite("Service - Match Service")
 struct MatchServiceTests {
     let mockNetworkManager = MockNetworkManager()
-    let networkManager: NetworkManager = NetworkManager()
+    let networkManager: NetworkManagerProtocol = NetworkManager.create()
     
     let mockMatchService: MatchService
     let matchService: MatchService

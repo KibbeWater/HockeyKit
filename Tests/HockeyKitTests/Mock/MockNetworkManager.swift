@@ -8,7 +8,7 @@
 
 @testable import HockeyKit
 
-class MockNetworkManager: NetworkManagerProtocol {
+final class MockNetworkManager: NetworkManagerProtocol, @unchecked Sendable {
     var invokedRequest = false
     var invokedEndpoint: Endpoints?
     var completionResult: Any?

@@ -43,7 +43,7 @@ final class AsyncHTTPNetworkManager: NetworkManagerProtocol {
         let body = try await response.body.collect(upTo: 10 * 1024 * 1024) // 10MB max
 
         // Convert ByteBuffer to Data
-        let data = Data(buffer: body)
+        let data = Data(body.readableBytesView)
 
         // Decode JSON response
         do {

@@ -11,7 +11,7 @@ import Testing
 @Suite("Service - Season Service")
 struct TeamServiceTests {
     let mockNetworkManager = MockNetworkManager()
-    let networkManager: NetworkManager = NetworkManager()
+    let networkManager: NetworkManagerProtocol = NetworkManager.create()
     
     let mockTeamService: TeamService
     let teamService: TeamService

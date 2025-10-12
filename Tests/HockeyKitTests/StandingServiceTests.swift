@@ -11,7 +11,7 @@ import Testing
 @Suite("Service - Standing Service")
 struct StandingServiceTests {
     let mockNetworkManager = MockNetworkManager()
-    let networkManager: NetworkManager = NetworkManager()
+    let networkManager: NetworkManagerProtocol = NetworkManager.create()
     
     let mockStandingService: StandingService
     let standingService: StandingService
