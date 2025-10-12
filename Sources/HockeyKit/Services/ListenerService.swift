@@ -69,7 +69,7 @@ actor BufferManager {
 }
 
 class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate, @unchecked Sendable {
-    private let networkManager: NetworkManager
+    private let networkManager: NetworkManagerProtocol
     
     /// The URL of the EventStream endpoint
     private var url: URL = BroadcasterEndpoint.live.url
@@ -118,7 +118,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         self.maxRetries = 5
         self.baseDelay = 1.0
         self.maxDelay = 60.0
-        self.networkManager = NetworkManager()
+        self.networkManager = NetworkManager.create()
         super.init()
     }
     

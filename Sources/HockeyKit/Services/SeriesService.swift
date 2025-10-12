@@ -19,9 +19,9 @@ fileprivate struct SeasonAPIResponse: Codable {
 }
 
 class SeriesService: SeriesServiceProtocol {
-    private let networkManager: NetworkManager
-    
-    init(networkManager: NetworkManager) {
+    private let networkManager: NetworkManagerProtocol
+
+    init(networkManager: NetworkManagerProtocol) {
         self.networkManager = networkManager
     }
     

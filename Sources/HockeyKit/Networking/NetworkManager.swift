@@ -10,7 +10,8 @@ import Foundation
 import FoundationNetworking
 #endif
 
-class NetworkManager: @unchecked Sendable {
+/// URLSession-based network manager for iOS/macOS platforms
+final class URLSessionNetworkManager: NetworkManagerProtocol {
     private let session: URLSession
 
     init(session: URLSession = .shared) {
@@ -20,13 +21,13 @@ class NetworkManager: @unchecked Sendable {
     func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
         let request = URLRequest(url: endpoint.url)
         // request.httpMethod = endpoint.method
-        
+
         let (data, response) = try await session.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
             throw HockeyAPIError.networkError
         }
-        
+
         do {
             let decodedResponse = try JSONDecoder().decode(T.self, from: data)
             return decodedResponse
@@ -34,5 +35,16 @@ class NetworkManager: @unchecked Sendable {
             print(err)
             throw HockeyAPIError.decodingError
         }
+    }
+}
+
+/// Platform-conditional factory for creating the appropriate NetworkManager
+enum NetworkManager {
+    static func create() -> NetworkManagerProtocol {
+        #if os(Linux)
+        return AsyncHTTPNetworkManager()
+        #else
+        return URLSessionNetworkManager()
+        #endif
     }
 }

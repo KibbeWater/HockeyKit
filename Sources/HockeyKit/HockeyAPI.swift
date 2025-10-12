@@ -8,7 +8,7 @@
 import Foundation
 
 public class HockeyAPI {
-    private let networkManager: NetworkManager
+    private let networkManager: NetworkManagerProtocol
     public let season: SeasonServiceProtocol
     public let match: MatchServiceProtocol
     public let team: TeamServiceProtocol
@@ -18,7 +18,7 @@ public class HockeyAPI {
     public let player: PlayerServiceProtocol
 
     public init() {
-        let networkManager = NetworkManager()
+        let networkManager = NetworkManager.create()
         self.networkManager = networkManager
 
         self.season = SeasonService(networkManager: networkManager)

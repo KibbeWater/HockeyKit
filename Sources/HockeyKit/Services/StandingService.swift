@@ -8,9 +8,9 @@
 import Foundation
 
 class StandingService: StandingServiceProtocol {
-    private let networkManager: NetworkManager
-    
-    init(networkManager: NetworkManager) {
+    private let networkManager: NetworkManagerProtocol
+
+    init(networkManager: NetworkManagerProtocol) {
         self.networkManager = networkManager
     }
     

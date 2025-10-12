@@ -8,12 +8,12 @@
 
 @testable import HockeyKit
 
-class MockNetworkManager: NetworkManager {
+class MockNetworkManager: NetworkManagerProtocol {
     var invokedRequest = false
     var invokedEndpoint: Endpoints?
     var completionResult: Any?
 
-    override func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
+    func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
         invokedRequest = true
         invokedEndpoint = endpoint
         if let result = completionResult as? T {
