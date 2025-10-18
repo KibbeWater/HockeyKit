@@ -21,11 +21,12 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         return lhs.id == rhs.id
     }
     
-    init(id: String, name: String, teamNames: LocalizedTeamNames, teamInfo: SiteTeamInfo, icon: String?) {
+    init(id: String, name: String, teamNames: LocalizedTeamNames, teamInfo: SiteTeamInfo, teamCode: String, icon: String?) {
         self.id = id
         self.name = name
         self.teamNames = teamNames
         self.teamInfo = teamInfo
+        self.teamCode = teamCode
         self.icon = icon
     }
     
@@ -33,6 +34,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
     public let name: String
     public let teamNames: LocalizedTeamNames
     public let teamInfo: SiteTeamInfo
+    public let teamCode: String
     public let icon: String?
     
     public init(from decoder: any Decoder) throws {
@@ -43,6 +45,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         teamNames = try container.decode(LocalizedTeamNames.self, forKey: .teamNames)
         teamInfo = try container.decode(SiteTeamInfo.self, forKey: .teamInfo)
         icon = try container.decodeIfPresent(String.self, forKey: .icon)
+        teamCode = try container.decode(String.self, forKey: .teamCode)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -50,6 +53,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
         case name
         case teamNames
         case teamInfo
+        case teamCode
         case icon
     }
     
@@ -78,6 +82,7 @@ public struct SiteTeam: Identifiable, Equatable, Hashable, Codable, Sendable, Te
                     "World"
                 ]
             ),
+            teamCode: "LHF",
             icon: "random icon"
         )
     }
