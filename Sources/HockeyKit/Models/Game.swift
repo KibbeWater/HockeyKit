@@ -29,6 +29,8 @@ public struct Game: Codable, Identifiable, Equatable, Sendable {
     
     public var homeTeam: Team
     public var awayTeam: Team
+
+    public var names: GameExtra.GTeam.TeamNames?
     
     public func isLive() -> Bool {
         return !self.played && self.date < Date.now;
