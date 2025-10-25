@@ -130,7 +130,19 @@ public struct GameData: Codable, Sendable {
             self.gameUuid = try container.decode(String.self, forKey: .gameUuid)
             self.time = try container.decode(GameData.GameOverview.GameTime.self, forKey: .time)
         }
-        
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encodeIfPresent(gameId, forKey: .gameId)
+            try container.encode(homeTeam, forKey: .homeTeam)
+            try container.encode(awayTeam, forKey: .awayTeam)
+            try container.encode(homeGoals, forKey: .homeGoals)
+            try container.encode(awayGoals, forKey: .awayGoals)
+            try container.encode(state, forKey: .state)
+            try container.encode(gameUuid, forKey: .gameUuid)
+            try container.encode(time, forKey: .time)
+        }
+
         enum CodingKeys: String, CodingKey {
             case gameId
             case homeTeam
