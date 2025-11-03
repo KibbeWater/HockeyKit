@@ -13,7 +13,7 @@ final class MockNetworkManager: NetworkManagerProtocol, @unchecked Sendable {
     var invokedEndpoint: Endpoints?
     var completionResult: Any?
 
-    func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
+    func request<T: Decodable>(endpoint: Endpoints, configuration: EndpointConfiguration) async throws -> T {
         invokedRequest = true
         invokedEndpoint = endpoint
         if let result = completionResult as? T {

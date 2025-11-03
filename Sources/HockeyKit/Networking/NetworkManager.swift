@@ -18,8 +18,8 @@ final class URLSessionNetworkManager: NetworkManagerProtocol {
         self.session = session
     }
 
-    func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
-        let request = URLRequest(url: endpoint.url)
+    func request<T: Decodable>(endpoint: Endpoints, configuration: EndpointConfiguration) async throws -> T {
+        let request = URLRequest(url: endpoint.url(using: configuration))
         // request.httpMethod = endpoint.method
 
         let (data, response) = try await session.data(for: request)

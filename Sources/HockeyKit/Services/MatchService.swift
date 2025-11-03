@@ -9,26 +9,29 @@ import Foundation
 
 class MatchService: MatchServiceProtocol {
     private let networkManager: NetworkManagerProtocol
+    private let configuration: EndpointConfiguration
 
-    init(networkManager: NetworkManagerProtocol) {
+    init(networkManager: NetworkManagerProtocol, configuration: EndpointConfiguration = .default) {
         self.networkManager = networkManager
+        self.configuration = configuration
     }
     
     func getLatest() async throws -> [Game] {
-        let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: Endpoint.matchesLatest)
+        let req: [String: [LatestGameResponse]] = try await networkManager.request(endpoint: Endpoint.matchesLatest, configuration: configuration)
         return req.flatMap { $1 }.map { $0.toGame() }
     }
     
     func getMatch(_ matchId: String) async throws -> GameExtra {
-        let req: GameExtra = try await networkManager.request(endpoint: Endpoint.match(matchId))
+        let req: GameExtra = try await networkManager.request(endpoint: Endpoint.match(matchId), configuration: configuration)
         return req
     }
     
     func getSeasonSchedule(_ season: Season, series: Series) async throws -> [Game] {
         let network = networkManager
+        let config = configuration
         
-        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular))
-        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals))
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular), configuration: config)
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals), configuration: config)
         
         let regular = try? await regularResponse
         let finals = try? await finalsResponse
@@ -40,9 +43,10 @@ class MatchService: MatchServiceProtocol {
     
     func getSeasonSchedule(_ season: Season, series: Series, withTeams teams: [String]) async throws -> [Game] {
         let network = networkManager
+        let config = configuration
         
-        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular, teams))
-        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals, teams))
+        async let regularResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .regular, teams), configuration: config)
+        async let finalsResponse: ScheduleResponse = network.request(endpoint: Endpoint.matchesSchedule(season, series, .finals, teams), configuration: config)
         
         let regular = try? await regularResponse
         let finals = try? await finalsResponse
@@ -55,7 +59,7 @@ class MatchService: MatchServiceProtocol {
     func getMatchStats(_ game: Game) async throws -> GameStats {
         guard game.played else { throw HockeyAPIError.gameNotPlayed }
         
-        let stats: GameStats = try await networkManager.request(endpoint: Endpoint.matchStats(game))
+        let stats: GameStats = try await networkManager.request(endpoint: Endpoint.matchStats(game), configuration: configuration)
         
         return stats
     }
@@ -63,7 +67,7 @@ class MatchService: MatchServiceProtocol {
     func getMatchExtra(_ game: Game) async throws -> GameExtra {
         guard game.played else { throw HockeyAPIError.gameNotPlayed }
         
-        let extra: GameExtra = try await networkManager.request(endpoint: Endpoint.matchExtra(game))
+        let extra: GameExtra = try await networkManager.request(endpoint: Endpoint.matchExtra(game), configuration: configuration)
         
         return extra
     }
@@ -71,7 +75,7 @@ class MatchService: MatchServiceProtocol {
     func getMatchPBP(_ game: Game) async throws -> PBPEvents {
         guard game.played || game.isLive() else { throw HockeyAPIError.gameNotPlayed }
 
-        let pbp: [AnyPBPEvent] = try await networkManager.request(endpoint: LiveEndpoint.playByPlay(game))
+        let pbp: [AnyPBPEvent] = try await networkManager.request(endpoint: LiveEndpoint.playByPlay(game), configuration: configuration)
         return PBPEvents(events: pbp.map { $0.event }.sorted(by: { $0.realWorldTime < $1.realWorldTime }))
     }
 }

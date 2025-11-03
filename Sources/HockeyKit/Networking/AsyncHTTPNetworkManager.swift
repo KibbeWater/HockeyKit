@@ -23,8 +23,8 @@ final class AsyncHTTPNetworkManager: NetworkManagerProtocol {
         try? httpClient.syncShutdown()
     }
 
-    func request<T: Decodable>(endpoint: Endpoints) async throws -> T {
-        let url = endpoint.url.absoluteString
+    func request<T: Decodable>(endpoint: Endpoints, configuration: EndpointConfiguration) async throws -> T {
+        let url = endpoint.url(using: configuration).absoluteString
 
         // Create HTTP request
         var request = HTTPClientRequest(url: url)
