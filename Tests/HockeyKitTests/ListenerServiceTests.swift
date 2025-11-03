@@ -31,7 +31,7 @@ struct ListenerServiceTests {
         let id = "delayed-bufer"
         let endpoint = TestEndpoint.scenario(id)
         
-        let service = try setupService(endpoint.url)
+        let service = try setupService(endpoint.url(using: .default))
         
         try await confirmation("Does scenario \"Delayed Buffer\" pass without errors") { fulfilled in
             let cancellable = service.subscribe()
@@ -53,7 +53,7 @@ struct ListenerServiceTests {
         let id = "invalid-data"
         let endpoint = TestEndpoint.scenario(id)
         
-        let service = try setupService(endpoint.url)
+        let service = try setupService(endpoint.url(using: .default))
         
         try await confirmation("Does scenario \"Invalid Data\" pass with only one error", expectedCount: 1) { fulfilled in
             let cancellable = service.errorPublisher()
@@ -75,7 +75,7 @@ struct ListenerServiceTests {
         let id = "invalid-format"
         let endpoint = TestEndpoint.scenario(id)
         
-        let service = try setupService(endpoint.url)
+        let service = try setupService(endpoint.url(using: .default))
         service._internal_onlyPublishWhenFinished(false)
 
         try await confirmation("Does scenario \"Invalid Format\" pass with no errors and no events", expectedCount: 2) { fulfilled in
