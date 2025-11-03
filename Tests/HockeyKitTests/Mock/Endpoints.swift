@@ -9,15 +9,14 @@ import Foundation
 @testable import HockeyKit
 
 enum TestEndpoint: Endpoints {
-    static let baseURL = URL(string: "https://shl.lrlnet.se/tests")!
-    
     case getScenarios
     case scenario(String)
     
-    var url: URL {
+    func url(using configuration: EndpointConfiguration) -> URL {
+        let baseURL = URL(string: "https://shl.lrlnet.se/tests")!
         switch self {
-        case .getScenarios: return Self.baseURL.appendingPathComponent("/scenario")
-        case .scenario(let id): return Self.baseURL.appendingPathComponent("/scenario/\(id)")
+        case .getScenarios: return baseURL.appendingPathComponent("/scenario")
+        case .scenario(let id): return baseURL.appendingPathComponent("/scenario/\(id)")
         }
     }
 }

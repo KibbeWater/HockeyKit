@@ -18,13 +18,15 @@ fileprivate struct TeamSettingsAPIResponse: Codable {
 
 class TeamService: TeamServiceProtocol {
     private let networkManager: NetworkManagerProtocol
+    private let configuration: EndpointConfiguration
 
-    init(networkManager: NetworkManagerProtocol) {
+    init(networkManager: NetworkManagerProtocol, configuration: EndpointConfiguration = .default) {
         self.networkManager = networkManager
+        self.configuration = configuration
     }
     
     func getTeams() async throws -> [SiteTeam] {
-        let res: TeamSettingsAPIResponse = try await networkManager.request(endpoint: Endpoint.teams)
+        let res: TeamSettingsAPIResponse = try await networkManager.request(endpoint: Endpoint.teams, configuration: configuration)
         
         return res.teamsInSite
     }
@@ -39,6 +41,6 @@ class TeamService: TeamServiceProtocol {
     }
     
     func getLineup(team: SiteTeam) async throws -> [TeamLineup] {
-        return try await networkManager.request(endpoint: Endpoint.teamLineup(team))
+        return try await networkManager.request(endpoint: Endpoint.teamLineup(team), configuration: configuration)
     }
 }

@@ -70,9 +70,10 @@ actor BufferManager {
 
 class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate, @unchecked Sendable {
     private let networkManager: NetworkManagerProtocol
+    private let configuration: EndpointConfiguration
     
     /// The URL of the EventStream endpoint
-    private var url: URL = BroadcasterEndpoint.live.url
+    private var url: URL
     
     /// A subject to multicast events to multiple subscribers
     private let eventSubject = PassthroughSubject<GameData, Never>()
@@ -114,11 +115,13 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     private var _test_shouldReconnectOn200: Bool = true
     private var _test_onlyPublishWhenFinished: Bool = false
     
-    public override init() {
+    public init(configuration: EndpointConfiguration = .default) {
         self.maxRetries = 5
         self.baseDelay = 1.0
         self.maxDelay = 60.0
         self.networkManager = NetworkManager.create()
+        self.configuration = configuration
+        self.url = BroadcasterEndpoint.live.url(using: configuration)
         super.init()
     }
     
@@ -160,7 +163,7 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
     }
     
     func getGameData(_ gameId: String) async throws -> GameData? {
-        let data: GameData.GameOverview = try await networkManager.request(endpoint: Endpoint.match(gameId))
+        let data: GameData.GameOverview = try await networkManager.request(endpoint: Endpoint.match(gameId), configuration: configuration)
         return GameData(gameOverview: data)
     }
     

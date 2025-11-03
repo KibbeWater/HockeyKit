@@ -14,13 +14,15 @@ fileprivate struct SeasonAPIResponse: Codable {
 
 class SeasonService: SeasonServiceProtocol {
     private let networkManager: NetworkManagerProtocol
+    private let configuration: EndpointConfiguration
 
-    init(networkManager: NetworkManagerProtocol) {
+    init(networkManager: NetworkManagerProtocol, configuration: EndpointConfiguration = .default) {
         self.networkManager = networkManager
+        self.configuration = configuration
     }
     
     private func getSiteSettings() async throws -> SeasonAPIResponse {
-        let res: SeasonAPIResponse = try await networkManager.request(endpoint: Endpoint.siteSettings)
+        let res: SeasonAPIResponse = try await networkManager.request(endpoint: Endpoint.siteSettings, configuration: configuration)
         return res
     }
 
