@@ -125,16 +125,6 @@ class ListenerService: NSObject, ListenerServiceProtocol, URLSessionDataDelegate
         super.init()
     }
     
-    public override init() {
-        self.maxRetries = 5
-        self.baseDelay = 1.0
-        self.maxDelay = 60.0
-        self.networkManager = NetworkManager.create()
-        self.configuration = .default
-        self.url = BroadcasterEndpoint.live.url(using: .default)
-        super.init()
-    }
-    
     deinit {
         disconnect()
     }
