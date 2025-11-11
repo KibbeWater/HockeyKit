@@ -25,6 +25,7 @@ enum Endpoint: Endpoints {
     case playerGameLog(Player)
 
     case standings(String)
+    case standingsV2(String)
 
     case siteSettings
 
@@ -60,6 +61,13 @@ enum Endpoint: Endpoints {
 
         case .standings(let ssgtUuid):
             return baseURL.appendingPathComponent("/sports/league-standings")
+                .appending(queryItems: [.init(name: "ssgtUuid", value: ssgtUuid)])
+        case .standingsV2(let ssgtUuid):
+            // Use v2 API on sdhl.se domain instead of shl.se
+            var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+            components.host = components.host?.replacingOccurrences(of: "shl.se", with: "sdhl.se")
+            let v2BaseURL = components.url!
+            return v2BaseURL.appendingPathComponent("/statistics-v2/league-standings")
                 .appending(queryItems: [.init(name: "ssgtUuid", value: ssgtUuid)])
 
         case .player(let id):
